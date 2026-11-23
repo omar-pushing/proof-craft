@@ -1,0 +1,11 @@
+/*
+ * Arabic: Thmanyah (ثمانية). The typeface is free to use on websites but its files may not be redistributed, so they are NOT in this repository.
+ * Download the family from the official Thmanyah font page, convert to woff2 and place the files in public/fonts/thmanyah/ with these names:
+ *   sans-400.woff2  sans-500.woff2  sans-700.woff2  serif-display-400.woff2  serif-display-700.woff2
+ * Until then Arabic falls back to Readex Pro. The unicode-range keeps Latin text on the existing English fonts.
+ */
+@font-face { font-family: "Thmanyah Sans"; font-weight: 400; font-display: swap; src: local("Thmanyah Sans"), url("/fonts/thmanyah/sans-400.woff2") format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+@font-face { font-family: "Thmanyah Sans"; font-weight: 500; font-display: swap; src: local("Thmanyah Sans Medium"), url("/fonts/thmanyah/sans-500.woff2") format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+@font-face { font-family: "Thmanyah Sans"; font-weight: 600 800; font-display: swap; src: local("Thmanyah Sans Bold"), url("/fonts/thmanyah/sans-700.woff2") format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+@font-face { font-family: "Thmanyah Serif Display"; font-weight: 400; font-display: swap; src: local("Thmanyah Serif Display"), url("/fonts/thmanyah/serif-display-400.woff2") format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }
+@font-face { font-family: "Thmanyah Serif Display"; font-weight: 700; font-display: swap; src: local("Thmanyah Serif Display Bold"), url("/fonts/thmanyah/serif-display-700.woff2") format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF; }

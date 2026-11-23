@@ -1,0 +1,26 @@
+/* Design tokens. Components read semantic tokens only (colour, space, type, radius, motion). Dark mode redefines the same names. */
+:root {
+  --bg: #FAF8F3; --surface: #FFFFFF; --surface-2: #F3F0E8; --field: #FFFFFF;
+  --text: #161A2E; --muted: #555B6E; --border: #E3E0D6; --border-strong: #7C8191;
+  --action: #2F45D0; --action-hover: #2539B0; --on-action: #FFFFFF;
+  --marker: #FFD84D; --ok: #1E7A46; --warn: #8A5A00; --bad: #B42318;
+  --nib: #161A2E; --nib-key: #FFD84D;
+  --shadow: 0 24px 48px -28px rgba(22, 26, 46, .35);
+  /* Arabic glyphs come from Thmanyah when installed; the unicode-range in fonts.css keeps Latin on the English fonts. */
+  --font-body: "Thmanyah Sans", "Readex Pro", system-ui, sans-serif;
+  --font-display: "Thmanyah Serif Display", "Young Serif", Georgia, serif;
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 72px;
+  --fs-sm: .875rem; --fs-md: 1rem; --fs-lg: 1.125rem; --fs-xl: 1.375rem;
+  --r: 10px; --r-lg: 18px; --ease: cubic-bezier(.2, .8, .2, 1); --t1: 150ms; --t2: 240ms;
+  --gutter: clamp(16px, 4vw, 32px); --header: 68px; --focus: var(--action);
+  color-scheme: light;
+}
+[data-theme=dark] {
+  --bg: #0B0E1B; --surface: #151A2E; --surface-2: #1F2644; --field: #0F1325;
+  --text: #F5F3EC; --muted: #BDC3D8; --border: #343C5E; --border-strong: #7E87AC;
+  --action: #9CAAFF; --action-hover: #B8C3FF; --on-action: #0B0E1B;
+  --ok: #67D898; --warn: #F5C25C; --bad: #FF9A8F;
+  --nib: #FAF8F3; --nib-key: transparent;
+  --shadow: 0 24px 48px -28px rgba(0, 0, 0, .8);
+  color-scheme: dark;
+}
