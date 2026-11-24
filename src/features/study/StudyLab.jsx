@@ -9,29 +9,16 @@ import { useT } from '@/i18n/index.js';
 import { niceDate, todayISO } from '@/lib/dates.js';
 import { download } from '@/lib/download.js';
 import { toast } from '@/state/toast.js';
+import { minsOn } from '@/domain/timer.js';
+import Button2 from '@/components/ui/Button.jsx';
 import { uid } from '@/lib/id.js';
 
-const PRE = { '25 / 5': [25, 5], '50 / 10': [50, 10], '15 / 3': [15, 3] };
 const RATINGS = [['again', 'Again', 'secondary'], ['hard', 'Hard', 'secondary'], ['got', 'Got it', 'primary'], ['easy', 'Easy', 'secondary']];
 const dd = (a, b) => Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 864e5);
 
-/** Focus timer on a wall-clock end time, so a backgrounded tab cannot make it drift. Finished focus time is logged per day. */
-function Timer({ store }) {
-  const { t } = useT(); const [pre, setPre] = useState('25 / 5'), [phase, setPhase] = useState('focus'), [end, setEnd] = useState(null); const len = (p = phase) => PRE[pre][p === 'focus' ? 0 : 1] * 60; const [left, setLeft] = useState(len('focus'));
-  useEffect(() => {
-    if (!end) return; const id = setInterval(() => { const l = Math.max(0, Math.round((end - Date.now()) / 1000)); setLeft(l);
-      if (!l) { setEnd(null); if (phase === 'focus') { const d = todayISO(); store.set((s) => ({ focus: { ...s.focus, [d]: (s.focus[d] || 0) + PRE[pre][0] } })); toast(`${PRE[pre][0]} min focus logged`); setPhase('break'); setLeft(PRE[pre][1] * 60); } else { toast('Break over'); setPhase('focus'); setLeft(PRE[pre][0] * 60); } } }, 400);
-    return () => clearInterval(id);
-  }, [end, phase, pre, store]);
-  const mm = String(Math.floor(left / 60)).padStart(2, '0'), ss = String(left % 60).padStart(2, '0');
-  return (<div className="timer"><div className="row">{Object.keys(PRE).map((k) => <button key={k} className={`chip-toggle${pre === k ? ' on' : ''}`} aria-pressed={pre === k} onClick={() => { setPre(k); setEnd(null); setPhase('focus'); setLeft(PRE[k][0] * 60); }}>{k}</button>)}</div>
-    <b className="clock" role="timer" aria-live="off">{mm}:{ss}</b><small className="muted">{t(phase === 'focus' ? 'Focus' : 'Break')}</small>
-    <div className="row"><Button size="sm" onClick={() => setEnd(Date.now() + left * 1000)} disabled={!!end || !left}>{t('Start')}</Button><Button size="sm" variant="secondary" onClick={() => setEnd(null)} disabled={!end}>{t('Pause')}</Button><Button size="sm" variant="ghost" onClick={() => { setEnd(null); setPhase('focus'); setLeft(len('focus')); }}>{t('Reset')}</Button></div></div>);
-}
-
 export default function StudyLab() {
   const { t, lang } = useT(); const store = useUserStore();
-  const decks = useData((s) => s.decks), deckId = useData((s) => s.deckId), cards = useData((s) => s.cards), log = useData((s) => s.reviewLog), ns = useData((s) => s.newStats), perDay = useData((s) => s.newPerDay), focus = useData((s) => s.focus);
+  const decks = useData((s) => s.decks), deckId = useData((s) => s.deckId), cards = useData((s) => s.cards), log = useData((s) => s.reviewLog), ns = useData((s) => s.newStats), perDay = useData((s) => s.newPerDay), timeLog = useData((s) => s.timeLog);
   const [mode, setMode] = useState('due'), [shown, setShown] = useState(false), [tab, setTab] = useState('review'), [share, setShare] = useState(false), [find, setFind] = useState(''), [paste, setPaste] = useState(''), [newDeck, setNewDeck] = useState('');
   const td = todayISO(), deck = decks.find((d) => d.id === deckId) || decks[0], mine = useMemo(() => cards.filter((c) => c.deckId === deck.id), [cards, deck.id]);
   const newToday = ns.date === td ? ns.count : 0;
@@ -58,7 +45,7 @@ export default function StudyLab() {
       <PageHead title="Study Lab" desc="Write your own cards, recall the answer before you reveal it, then rate yourself. Missed cards return tomorrow; correct ones come back after 1, 3, 7, 14 and 30 days.">
         <Button variant="secondary" size="sm" onClick={() => setShare(true)} disabled={!mine.length}>{t('Share deck')}</Button>
       </PageHead>
-      <div className="stats4">{[[q.length, 'Due now'], [`${Math.min(newToday, perDay)}/${perDay}`, 'New today'], [reviewsToday, 'Reviewed today'], [ret == null ? '–' : `${ret}%`, 'Retention'], [`${focus[td] || 0} min`, 'Focus today']].map(([n, l]) => <div key={l} className="statcard"><b>{n}</b><small>{t(l)}</small></div>)}</div>
+      <div className="stats4">{[[q.length, 'Due now'], [`${Math.min(newToday, perDay)}/${perDay}`, 'New today'], [reviewsToday, 'Reviewed today'], [ret == null ? '–' : `${ret}%`, 'Retention'], [`${minsOn(timeLog, td)} min`, 'Focus today']].map(([n, l]) => <div key={l} className="statcard"><b>{n}</b><small>{t(l)}</small></div>)}</div>
       <div className="row toolbar"><label className="inline-sel">{t('Deck')}<select value={deck.id} onChange={(e) => store.set({ deckId: e.target.value })}>{decks.map((d) => <option key={d.id} value={d.id}>{d.name} ({cards.filter((c) => c.deckId === d.id).length})</option>)}</select></label>
         <div className="seg" role="tablist" aria-label={t('Study Lab')}>{[['review', 'Review'], ['cards', 'Cards'], ['stats', 'Progress']].map(([k, l]) => <button key={k} role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{t(l)}</button>)}</div></div>
 
@@ -69,7 +56,7 @@ export default function StudyLab() {
             : <Button onClick={() => setShown(true)}>{t('Reveal answer')} <kbd>Space</kbd></Button>}</div>)
           : <Empty>{mine.length ? (mode === 'due' ? 'All done for now. New cards are limited per day; change the limit under Cards, or use Cram all.' : 'No cards.') : 'No cards yet. Add your first card under Cards, or import a list.'}</Empty>}
         {mode === 'cram' && <p className="help">{t('Cram mode does not change your review schedule.')}</p>}</section>
-        <section className="panel"><h2>{t('Focus timer')}</h2><Timer store={store} /></section></div>)}
+        <section className="panel"><h2>{t('Study Timer')}</h2><p className="muted">{t('Time your study sessions with a timer or a stopwatch.')}</p><Button2 to="/app/study/timer" variant="secondary">{t('Open Study Timer')}</Button2></section></div>)}
 
       {tab === 'cards' && (<>
         <div className="split"><form className="panel form" onSubmit={addCard}><h2>{t('Add a card')}</h2><label>{t('Question')}<input name="q" required maxLength={300} /></label><label>{t('Answer')}<textarea name="a" required rows={2} maxLength={600} /></label><Button type="submit">{t('Save card')}</Button></form>

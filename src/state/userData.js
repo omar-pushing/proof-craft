@@ -6,7 +6,7 @@ import { uid } from '@/lib/id.js';
 import { SCALES } from '@/domain/grades.js';
 
 export const emptyData = () => ({
-  tasks: [], plans: [], cards: [], decks: [{ id: 'general', name: 'General' }], deckId: 'general', reviewLog: [], newStats: { date: '', count: 0 }, focus: {}, newPerDay: 10,
+  tasks: [], plans: [], cards: [], decks: [{ id: 'general', name: 'General' }], deckId: 'general', reviewLog: [], newStats: { date: '', count: 0 }, focus: {}, timeLog: [], goalMins: 120, activeTimer: null, soundOn: true, newPerDay: 10,
   courses: [], scale: 'egypt', scaleRows: SCALES.egypt.rows, prior: { gpa: '', credits: '' }, targetGpa: '',
   evidence: [], sources: [], tracker: [], stories: [], cvs: [], activeCv: null, onboarded: false, xp: 0, streak: 0, last: '', counts: {},
 });

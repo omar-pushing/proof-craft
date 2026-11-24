@@ -54,6 +54,29 @@ Conventions
 
 English keeps Young Serif and Readex Pro. Arabic uses Thmanyah when the files are present (see `public/fonts/thmanyah/README.txt`; the licence forbids redistributing them, so they are not in this repo). `unicode-range` limits Thmanyah to Arabic glyphs.
 
+## Accounts, consent and Google sign-in
+
+- Sign-up is three short steps: name, phone (Egyptian numbers normalised to E.164) and optional email; then optional questions (student or not, university, goals, how you heard, an optional money question with its own consent); then terms, age and marketing consent. `docs/data-collection.md` lists every field, why it exists and how sensitive it is.
+- Consent is stored with the account (terms and privacy version, timestamp, marketing, hardship) and can be changed in Settings.
+- Google: set `VITE_GOOGLE_CLIENT_ID`. The button uses Google Identity Services and returns an ID token. The browser only decodes it; a real deployment must verify the token on the server (`POST /auth/google`: signature, audience, expiry, `email_verified`) before creating a session. Without a client ID the button is shown disabled with an explanation.
+- Phone numbers are not verified in this build. Production should send an SMS code (or rely on Google) before trusting a number.
+
+## Feedback and admin
+
+`services/feedback` is a driver interface like collaboration (`submit`, `update`, `remove`, `listMine`, `listAll`). Users send feedback from the sidebar, footer or Settings; the context attached is only the page, language, theme and browser type. `/app/admin` shows an inbox (status, notes, CSV export) and aggregate sign-up insights. Admin rights are a client hint here (`VITE_ADMIN_EMAILS`, or the preview-only switch); the API must enforce them.
+
+## Legal pages
+
+`features/legal` holds Privacy Policy, Terms of Use and Cookies and storage, driven by `config/legal.js`. They are drafts written for this product and Egypt's PDPL, not legal advice. Have a lawyer review them and fill in the entity, address and emails. The Arabic version shows a plain-language summary only; the full Arabic legal text still needs a professional translation.
+
+## Study Timer
+
+Timer (presets, custom, Pomodoro) and stopwatch (laps). State is wall-clock based and persisted, so it survives navigation and reloads. `TimerEngine` in the app shell finishes countdowns on any page, updates the tab title and shows a chip in the sidebar. Sessions go to a log with subject tags, a daily goal and a 7-day chart.
+
+## Adding a CV template
+
+Add an entry to `domain/cvTemplates.js` (id, name, columns, tags, photo flag) and a `.tpl-<id>` block in `styles/cv.css` using the `--cv-*` variables. The thumbnail, filter, ATS column warning and exports pick it up automatically.
+
 ## Collaboration contract
 
 Shared workspaces go through `services/collab`. `localDriver` keeps them in this browser (tabs sync through the `storage` event; each tab signs in as its own user, so two tabs act as two people). It enforces roles on every call, exactly what the API must do.

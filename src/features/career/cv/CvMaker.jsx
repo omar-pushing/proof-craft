@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHead from '@/components/ui/PageHead.jsx';
 import Button from '@/components/ui/Button.jsx';
@@ -9,6 +9,7 @@ import Preview from './Preview.jsx';
 import { DesignPanel, SectionsPanel, TemplatePicker } from './Panels.jsx';
 import { MISSING_LABEL, completeness, cvPlainText, cvToHtml, fromJsonResume, newCv, toJsonResume } from '@/domain/cv.js';
 import { PAPERS } from '@/domain/cvTemplates.js';
+import { SAMPLE_CV } from './sample.js';
 import { award, useData, useUserStore } from '@/state/userData.js';
 import { addEvidenceToCv, ensureCv } from '@/state/cvActions.js';
 import { useUser } from '@/state/session.js';
@@ -23,11 +24,25 @@ const clone = (v) => JSON.parse(JSON.stringify(v));
 export default function CvMaker() {
   const { t } = useT(); const store = useUserStore(), user = useUser(), nav = useNavigate();
   const cvs = useData((s) => s.cvs), activeId = useData((s) => s.activeCv), evidence = useData((s) => s.evidence);
-  const [tab, setTab] = useState('content'), [del, setDel] = useState(false); const file = useRef(null);
+  const [tab, setTab] = useState('content'), [del, setDel] = useState(false), [view, setView] = useState('edit'), [full, setFull] = useState(false); const file = useRef(null), hist = useRef({}), undoRef = useRef(() => {}), redoRef = useRef(() => {});
   useEffect(() => { ensureCv(store, user.name); }, [store, user.name]);
   const cv = cvs.find((c) => c.id === activeId) || cvs[0];
+  const shown = useDeferredValue(cv) ?? cv;
+  useEffect(() => {
+    const k = (e) => { if (!(e.ctrlKey || e.metaKey) || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return; const key = e.key.toLowerCase(); if (key === 'z' && !e.shiftKey) { e.preventDefault(); undoRef.current(); } else if ((key === 'z' && e.shiftKey) || key === 'y') { e.preventDefault(); redoRef.current(); } };
+    document.addEventListener('keydown', k); return () => document.removeEventListener('keydown', k);
+  }, []);
   if (!cv) return null;
-  const edit = (fn) => store.set((s) => ({ cvs: s.cvs.map((c) => { if (c.id !== cv.id) return c; const n = clone(c); fn(n); n.updated = Date.now(); return n; }) }));
+  const H = (hist.current[cv.id] ||= { past: [], future: [], t: 0 });
+  const put = (next) => store.set((s) => ({ cvs: s.cvs.map((c) => (c.id === next.id ? { ...next, updated: Date.now() } : c)) }));
+  /** Edits made within 0.7 s of each other count as one undo step, so typing a word is one step, not one per letter. */
+  const edit = (fn) => { const now = Date.now(); if (now - H.t > 700) { H.past.push(clone(cv)); if (H.past.length > 80) H.past.shift(); } H.t = now; H.future = []; const n = clone(cv); fn(n); put(n); };
+  const undo = () => { const prev = H.past.pop(); if (!prev) return; H.future.push(clone(cv)); H.t = 0; put(prev); };
+  const redo = () => { const next = H.future.pop(); if (!next) return; H.past.push(clone(cv)); H.t = 0; put(next); };
+  undoRef.current = undo; redoRef.current = redo;
+  const example = () => edit((c) => { Object.assign(c, { personal: { ...SAMPLE_CV.personal, photo: c.personal.photo }, summary: SAMPLE_CV.summary, education: clone(SAMPLE_CV.education), experience: clone(SAMPLE_CV.experience), projects: clone(SAMPLE_CV.projects), skills: clone(SAMPLE_CV.skills), languages: clone(SAMPLE_CV.languages) }); });
+  const time = new Date(cv.updated || Date.now()).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  const focusSection = (sec) => { setTab('content'); setView('edit'); setTimeout(() => { const el = document.querySelector(`[data-acc="${sec}"]`); if (!el) return; el.open = true; el.scrollIntoView?.({ behavior: 'smooth', block: 'start' }); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1400); }, 80); };
   const pick = (id) => store.set({ activeCv: id });
   const add = () => { const n = newCv({ name: cv.personal.name || user.name, title: `${t('CV')} ${cvs.length + 1}` }); n.personal = { ...clone(cv.personal) }; store.set((s) => ({ cvs: [...s.cvs, n], activeCv: n.id })); };
   const dup = () => { const n = { ...clone(cv), id: uid(), title: `${cv.title} (${t('copy')})`, updated: Date.now() }; store.set((s) => ({ cvs: [...s.cvs, n], activeCv: n.id })); };
@@ -61,14 +76,17 @@ export default function CvMaker() {
         </div>
         <div className="comp"><div className="row between"><span>{t('CV completeness')}: <b>{comp.percent}%</b></span><Button variant="secondary" size="sm" onClick={() => nav('/app/career/ats', { state: { cvId: cv.id } })}>{t('Run ATS Check')}</Button></div><Bar value={comp.percent} />{comp.missing.length > 0 && <small className="muted">{t('Next')}: {t(MISSING_LABEL[comp.missing[0]])}</small>}</div>
       </section>
-      <div className="cv-grid">
+      <div className="seg seg-full cv-view" role="group" aria-label={t('View')}>{[['edit', 'Edit'], ['preview', 'Preview']].map(([k, l]) => <button key={k} className={view === k ? 'on' : ''} aria-pressed={view === k} onClick={() => setView(k)}>{t(l)}</button>)}</div>
+      <div className="cv-grid" data-view={view}>
         <div className="cv-edit">
+          <div className="cv-tools"><div className="row"><Button variant="secondary" size="sm" onClick={undo} disabled={!H.past.length} aria-label={t('Undo')}>↶ {t('Undo')}</Button><Button variant="secondary" size="sm" onClick={redo} disabled={!H.future.length} aria-label={t('Redo')}>↷ {t('Redo')}</Button></div><span className="saved" role="status">✓ {t('Saved')} · {time}</span></div>
           <div className="tabs" role="tablist" aria-label={t('CV Maker')}>{TABS.map(([k, l]) => <button key={k} role="tab" aria-selected={tab === k} className={`tab${tab === k ? ' active' : ''}`} onClick={() => setTab(k)}>{t(l)}</button>)}</div>
           {tab === 'content' && <ContentEditor cv={cv} edit={edit} evidenceCount={evidence.length} onEvidence={() => { evidence.forEach((e) => addEvidenceToCv(store, e, user.name)); toast('Evidence added as projects'); }} />}
-          {tab === 'template' && <TemplatePicker cv={cv} edit={edit} />}{tab === 'design' && <DesignPanel cv={cv} edit={edit} />}{tab === 'sections' && <SectionsPanel cv={cv} edit={edit} />}
+          {tab === 'template' && <TemplatePicker cv={cv} edit={edit} onExample={example} />}{tab === 'design' && <DesignPanel cv={cv} edit={edit} />}{tab === 'sections' && <SectionsPanel cv={cv} edit={edit} />}
         </div>
-        <div className="cv-side"><Preview cv={cv} /></div>
+        <div className="cv-side"><Preview cv={shown} onPick={focusSection} /><div className="row"><Button variant="secondary" size="sm" onClick={() => setFull(true)}>{t('Full-size preview')}</Button><small className="muted">{t('Click a section in the preview to edit it.')}</small></div></div>
       </div>
+      <Dialog open={full} onClose={() => setFull(false)} title={t('Full-size preview')} wide><Preview cv={shown} /></Dialog>
       <Dialog open={del} onClose={() => setDel(false)} title={t('Delete this CV?')}><p>{cv.title}</p><div className="row"><Button onClick={remove}>{t('Yes, delete')}</Button><Button variant="secondary" onClick={() => setDel(false)}>{t('Cancel')}</Button></div></Dialog>
     </div>
   );

@@ -9,7 +9,11 @@ const page = (loader, name = 'default') => lazy(() => loader().then((m) => ({ de
 const Landing = page(() => import('@/features/landing/Landing.jsx'));
 const BlogIndex = page(() => import('@/features/blog/BlogIndex.jsx'));
 const Article = page(() => import('@/features/blog/Article.jsx'));
-const Privacy = page(() => import('@/features/settings/Privacy.jsx'));
+const Privacy = page(() => import('@/features/legal/Privacy.jsx'));
+const Terms = page(() => import('@/features/legal/Terms.jsx'));
+const Cookies = page(() => import('@/features/legal/Cookies.jsx'));
+const Timer = page(() => import('@/features/study/StudyTimer.jsx'));
+const Admin = page(() => import('@/features/admin/AdminInbox.jsx'));
 const SignIn = page(() => import('@/features/auth/SignIn.jsx'));
 const SharePage = page(() => import('@/features/share/SharePage.jsx'));
 const JoinPage = page(() => import('@/features/share/JoinPage.jsx'));
@@ -29,7 +33,7 @@ const Settings = page(() => import('@/features/settings/Settings.jsx'));
 
 function RequireAuth({ children }) {
   const uid = useSession((s) => s.uid); const { pathname } = useLocation();
-  return uid ? children : <Navigate to={`/sign-in?next=${encodeURIComponent(pathname)}`} replace />;
+  return uid ? children : <Navigate to={`/sign-in?tab=signin&next=${encodeURIComponent(pathname)}`} replace />;
 }
 
 export default function AppRoutes() {
@@ -39,7 +43,7 @@ export default function AppRoutes() {
         <Route index element={<Landing />} />
         <Route path="newsletter" element={<BlogIndex />} />
         <Route path="newsletter/:slug" element={<Article />} />
-        <Route path="privacy" element={<Privacy />} />
+        <Route path="privacy" element={<Privacy />} /><Route path="terms" element={<Terms />} /><Route path="cookies" element={<Cookies />} />
         <Route path="sign-in" element={<SignIn />} />
         <Route path="s/:payload" element={<SharePage />} />
         <Route path="join/:code" element={<RequireAuth><JoinPage /></RequireAuth>} />
@@ -48,7 +52,7 @@ export default function AppRoutes() {
           <Route path="today" element={<Today />} />
           <Route path="study" element={<Group id="study" />}>
             <Route index element={<Navigate to="exam" replace />} />
-            <Route path="exam" element={<Exam />} /><Route path="lab" element={<Lab />} /><Route path="grades" element={<Grades />} />
+            <Route path="exam" element={<Exam />} /><Route path="lab" element={<Lab />} /><Route path="timer" element={<Timer />} /><Route path="grades" element={<Grades />} />
           </Route>
           <Route path="projects" element={<Group id="projects" />}>
             <Route index element={<Navigate to="workspaces" replace />} />
@@ -59,7 +63,7 @@ export default function AppRoutes() {
             <Route path="evidence" element={<Evidence />} /><Route path="cv" element={<Cv />} /><Route path="ats" element={<Ats />} />
             <Route path="tracker" element={<Tracker />} /><Route path="applications" element={<Navigate to="../tracker" replace />} /><Route path="interview" element={<Interview />} />
           </Route>
-          <Route path="settings" element={<Settings />} />
+          <Route path="settings" element={<Settings />} /><Route path="admin" element={<Admin />} />
           <Route path="*" element={<Navigate to="today" replace />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

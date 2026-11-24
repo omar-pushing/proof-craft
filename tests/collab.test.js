@@ -25,3 +25,11 @@ test('workspace roles are enforced on every call', async () => {
   assert.equal(d.snapshot()[id].members.length, 1); assert.equal(d.snapshot()[id].tasks[0].assignee, null);
   assert.ok(d.snapshot()[id].activity.length >= 4);
 });
+
+test('feedback driver validates, stores and triages', async () => {
+  const { localFeedback: f } = await import('../src/services/feedback/localDriver.js');
+  assert.throws(() => f.submit({ type: 'nope', message: 'hello world' }), /type/); assert.throws(() => f.submit({ type: 'bug', message: 'hi' }), /short/);
+  const a = f.submit({ type: 'bug', message: 'The timer resets on reload', rating: 9, userId: 'u1', canContact: true, contact: 'x@y.co' });
+  assert.equal(a.rating, 5); assert.equal(a.status, 'new'); f.update(a.id, { status: 'done', note: 'fixed' });
+  assert.equal(f.snapshot()[0].status, 'done'); f.remove(a.id); assert.equal(f.snapshot().length, 0);
+});

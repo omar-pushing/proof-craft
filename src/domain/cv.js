@@ -22,10 +22,10 @@ export const HEADINGS = {
 export const LEVEL_AR = { Native: 'اللغة الأم', Fluent: 'طلاقة', Advanced: 'متقدم', Intermediate: 'متوسط', Basic: 'أساسي' };
 
 export const emptyEntry = (section) => ({ id: uid(), ...Object.fromEntries(SCHEMA[section].fields.map(([k, , t]) => [k, t === 'bullets' ? [''] : t === 'check' ? false : t === 'level' ? 'Fluent' : ''])) });
-export const defaultDesign = () => ({ accent: '#2F45D0', font: 'arial', size: 10.5, line: 1.35, margin: 15, paper: 'a4', gap: 12 });
+export const defaultDesign = () => ({ accent: '#2F45D0', font: 'arial', size: 10.5, line: 1.35, margin: 15, paper: 'a4', gap: 12, bullet: 'dot', skills: 'inline', dates: 'right', nameCase: 'normal' });
 export function newCv({ name = '', lang = 'en', title = 'My CV' } = {}) {
   return { id: uid(), title, lang, template: 'classic', design: defaultDesign(), updated: Date.now(),
-    personal: { name, headline: '', email: '', phone: '', location: '', links: [{ id: uid(), label: 'LinkedIn', url: '' }] },
+    personal: { name, photo: '', headline: '', email: '', phone: '', location: '', links: [{ id: uid(), label: 'LinkedIn', url: '' }] },
     summary: '', skills: [{ id: uid(), group: 'Technical', items: '' }], custom: [], ...Object.fromEntries(LIST_SECTIONS.map((s) => [s, []])),
     order: [...SECTION_ORDER], hidden: [] };
 }

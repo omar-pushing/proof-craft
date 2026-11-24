@@ -68,3 +68,21 @@ test('share links round-trip and reject hostile payloads', async () => {
   assert.equal((await decodeShare(tok)).sessions[0].mins, 25); assert.equal(sanitizeShare({ kind: 'script' }), null); assert.equal(await decodeShare('zzzz'), null);
 });
 test('ics uses exclusive end date', () => { assert.match(toIcs([{ id: 'a', title: 'Lab, report', due: '2026-03-31' }]), /DTEND;VALUE=DATE:20260401/); });
+
+import { normalizePhone, validEmail } from '../src/lib/phone.js';
+test('phone numbers normalise to E.164, Egyptian by default', () => {
+  assert.equal(normalizePhone('010 1234 5678').e164, '+201012345678'); assert.equal(normalizePhone('+20 111 234 5678').e164, '+201112345678');
+  assert.equal(normalizePhone('٠١٠١٢٣٤٥٦٧٨').e164, '+201012345678'); assert.equal(normalizePhone('0020 15 1234 5678').e164, '+201512345678');
+  assert.equal(normalizePhone('0131234567').ok, false); assert.equal(normalizePhone('+966 50 123 4567').e164, '+966501234567'); assert.equal(normalizePhone('').error, 'required'); assert.equal(normalizePhone('abc').ok, false);
+  assert.ok(validEmail('a@b.co') && !validEmail('a@b'));
+});
+
+import { elapsedMs, remainingMs, fmtClock, weekTotals, bySubject, sessionMins, minsOn } from '../src/domain/timer.js';
+test('timer maths use wall-clock time and ignore very short sessions', () => {
+  const t = { running: true, accMs: 60000, startedAt: 1000, targetMs: 300000 };
+  assert.equal(elapsedMs(t, 11000), 70000); assert.equal(remainingMs(t, 11000), 230000); assert.equal(elapsedMs({ ...t, running: false }, 99999), 60000);
+  assert.equal(fmtClock(3725000), '1:02:05'); assert.equal(fmtClock(65000), '01:05'); assert.equal(sessionMins(20000), 0); assert.equal(sessionMins(31000), 1); assert.equal(sessionMins(25 * 60000), 25);
+  const log = [{ date: '2026-01-07', mins: 30, subject: 'DB' }, { date: '2026-01-07', mins: 20, subject: 'DB' }, { date: '2026-01-05', mins: 10, subject: '' }];
+  assert.equal(minsOn(log, '2026-01-07'), 50); assert.equal(weekTotals(log, '2026-01-07')[6].mins, 50); assert.equal(weekTotals(log, '2026-01-07')[4].mins, 10);
+  assert.deepEqual(bySubject(log, '2026-01-01', '2026-01-07')[0], { subject: 'DB', mins: 50 });
+});

@@ -5,6 +5,9 @@ import { NAV } from '@/app/nav.js';
 import { useT } from '@/i18n/index.js';
 import { useData } from '@/state/userData.js';
 import { level } from '@/features/progress/badges.js';
+import TimerEngine from '@/features/study/TimerEngine.jsx';
+import { isAdmin, useUser } from '@/state/session.js';
+import { openFeedback } from '@/state/ui.js';
 
 function Mini() {
   const { t } = useT(); const xp = useData((s) => s.xp), streak = useData((s) => s.streak);
@@ -12,15 +15,17 @@ function Mini() {
 }
 
 export default function AppShell() {
-  const { t } = useT(); const wide = useLocation().pathname.includes('/career/cv');
+  const { t } = useT(); const user = useUser(); const wide = useLocation().pathname.includes('/career/cv');
   return (
     <div className={`container app-shell${wide ? ' wide' : ''}`}>
       <aside className="side" aria-label={t('Workspace')}>
         <nav className="side-nav">
           {NAV.map((n) => <NavLink key={n.id} to={n.to} className="side-link"><Icon name={n.icon} /><span>{t(n.label)}</span></NavLink>)}
+          {isAdmin(user) && <NavLink to="/app/admin" className="side-link"><Icon name="check" /><span>Admin</span></NavLink>}
           <NavLink to="/app/settings" className="side-link side-end"><Icon name="settings" /><span>{t('Settings')}</span></NavLink>
+          <button className="side-link side-btn" onClick={() => openFeedback('idea')}><Icon name="share" /><span>{t('Send feedback')}</span></button>
         </nav>
-        <Mini />
+        <TimerEngine /><Mini />
       </aside>
       <main className="app-main"><Outlet /></main>
     </div>

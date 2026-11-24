@@ -39,7 +39,7 @@ export default function Header() {
         <div className="actions">
           <Toggles />
           {user ? <Button variant="secondary" size="sm" className="hide-sm" onClick={leave}>{t('Sign out')}</Button>
-            : <><Link className="navlink hide-sm" to="/sign-in">{t('Sign in')}</Link><Button to="/sign-in" size="sm" className="hide-sm">{t('Create free account')}</Button></>}
+            : <><Link className="navlink hide-sm" to="/sign-in?tab=signin">{t('Sign in')}</Link><Button to="/sign-in" size="sm" className="hide-sm">{t('Create free account')}</Button></>}
           <button className="iconbtn burger" aria-expanded={open} aria-controls="drawer" aria-label={t('Menu')} onClick={() => setOpen(!open)}><Icon name={open ? 'x' : 'menu'} /></button>
         </div>
       </div>
@@ -48,7 +48,7 @@ export default function Header() {
         <nav className="drawer-in" aria-label={t('Menu')}>
           {links}
           {user ? <Button variant="secondary" onClick={leave}>{t('Sign out')}</Button>
-            : <><Link className="navlink" to="/sign-in">{t('Sign in')}</Link><Button to="/sign-in">{t('Create free account')}</Button></>}
+            : <><Link className="navlink" to="/sign-in?tab=signin">{t('Sign in')}</Link><Button to="/sign-in">{t('Create free account')}</Button></>}
         </nav>
       </div>
     </>
