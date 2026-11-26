@@ -56,6 +56,7 @@ English keeps Young Serif and Readex Pro. Arabic uses Thmanyah when the files ar
 
 ## Accounts, consent and Google sign-in
 
+- For a public showcase before the backend is ready, set `VITE_PUBLIC_SHOWCASE=1` in Vercel's **Production** environment. This hides account entry points, blocks authenticated routes, and labels examples and legal drafts. Keep this enabled until secure server authentication and legal review are complete.
 - Sign-up is three focused steps: first and last name, country-aware phone and required email; then two personalisation answers plus optional profile questions; then separate required Terms and Privacy confirmations and an optional newsletter checkbox. Google users follow the same completion flow. `docs/data-collection.md` lists every field, why it exists and how sensitive it is.
 - Consent is stored with the account (terms and privacy version, timestamp, marketing, hardship) and can be changed in Settings.
 - Google: set `VITE_GOOGLE_CLIENT_ID`. The button uses Google Identity Services and returns an ID token. The browser only decodes it; a real deployment must verify the token on the server (`POST /auth/google`: signature, audience, expiry, `email_verified`) before creating a session. Without a client ID the button is shown disabled with an explanation.

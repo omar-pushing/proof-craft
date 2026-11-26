@@ -11,7 +11,8 @@ header.site { position: sticky; top: 0; z-index: 50; background: color-mix(in sr
 @media (max-width: 899px) { .nav, .hide-sm { display: none; } .burger { display: inline-flex; } .drawer.open { display: block; } }
 footer.site { position: relative; isolation: isolate; overflow: hidden; background: #0B0E1C; color: #E9E6DC; padding: clamp(56px, 8vw, 96px) 0 24px; }
 .stars { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
-.foot-grid { display: grid; gap: 40px; } @media (min-width: 800px) { .foot-grid { grid-template-columns: 1.8fr 1fr 1fr 1fr; } }
+.foot-grid { display: grid; gap: 40px; } @media (min-width: 800px) { .foot-grid { grid-template-columns: 1.8fr 1fr 1fr 1fr; }.foot-grid.showcase-footer { grid-template-columns: 1.8fr 1fr 1fr; } }
+.showcase-banner { text-align: center; font-weight: 600; }
 .foot-brand { display: flex; align-items: flex-end; gap: 10px; font: 400 1.75rem/1 var(--font-display); direction: ltr; } .foot-brand .nib { --nib: #FAF8F3; --nib-key: transparent; height: 38px; }
 .foot-line { font: 400 1.75rem/1.2 var(--font-display); margin: 20px 0 8px; } .foot-muted { color: #BFC3D4; max-width: 38ch; }
 .foot-h { font: 500 1rem var(--font-body); margin: 0 0 12px; color: #fff; letter-spacing: 0; } footer.site a { display: block; padding: 5px 0; color: #C9CCD9; text-decoration: none; } footer.site a:hover { color: var(--marker); text-decoration: underline; }

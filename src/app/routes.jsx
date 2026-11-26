@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import PublicLayout from '@/components/layout/PublicLayout.jsx';
 import AppShell from '@/components/layout/AppShell.jsx';
 import Group from '@/components/layout/Group.jsx';
+import { APP } from '@/config/app.js';
 import { useSession } from '@/state/session.js';
 
 const page = (loader, name = 'default') => lazy(() => loader().then((m) => ({ default: m[name] })));
@@ -15,6 +16,7 @@ const Cookies = page(() => import('@/features/legal/Cookies.jsx'));
 const Timer = page(() => import('@/features/study/StudyTimer.jsx'));
 const Admin = page(() => import('@/features/admin/AdminPortal.jsx'));
 const SignIn = page(() => import('@/features/auth/SignIn.jsx'));
+const AccountUnavailable = page(() => import('@/features/auth/AccountUnavailable.jsx'));
 const SharePage = page(() => import('@/features/share/SharePage.jsx'));
 const JoinPage = page(() => import('@/features/share/JoinPage.jsx'));
 const Today = page(() => import('@/features/today/TodayPage.jsx'));
@@ -35,6 +37,7 @@ const Settings = page(() => import('@/features/settings/Settings.jsx'));
 
 function RequireAuth({ children }) {
   const uid = useSession((s) => s.uid); const { pathname } = useLocation();
+  if (APP.publicShowcase) return <Navigate to="/" replace />;
   return uid ? children : <Navigate to={`/sign-in?tab=signin&next=${encodeURIComponent(pathname)}`} replace />;
 }
 
@@ -47,7 +50,7 @@ export default function AppRoutes() {
         <Route path="newsletter" element={<BlogIndex />} />
         <Route path="newsletter/:slug" element={<Article />} />
         <Route path="privacy" element={<Privacy />} /><Route path="terms" element={<Terms />} /><Route path="cookies" element={<Cookies />} />
-        <Route path="sign-in" element={<SignIn />} />
+        <Route path="sign-in" element={APP.publicShowcase ? <AccountUnavailable /> : <SignIn />} />
         <Route path="s/:payload" element={<SharePage />} />
         <Route path="join/:code" element={<RequireAuth><JoinPage /></RequireAuth>} />
         <Route path="app" element={<RequireAuth><AppShell /></RequireAuth>}>
