@@ -8,7 +8,6 @@ import { prefs, toggleLang, toggleTheme } from '@/state/prefs.js';
 import { signOut, useUser } from '@/state/session.js';
 import { useStore } from '@/lib/store.js';
 import NotificationCenter from '@/features/notifications/NotificationCenter.jsx';
-import { APP } from '@/config/app.js';
 
 export function Toggles() {
   const { t, lang } = useT(); const theme = useStore(prefs, (s) => s.theme);
@@ -19,7 +18,7 @@ export function Toggles() {
 }
 
 export default function Header() {
-  const { t } = useT(); const user = useUser(); const hasAccount = user && !APP.publicShowcase; const loc = useLocation(); const nav = useNavigate(); const [open, setOpen] = useState(false);
+  const { t } = useT(); const user = useUser(); const loc = useLocation(); const nav = useNavigate(); const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [loc.pathname]);
   useEffect(() => {
     if (!open) return;
@@ -28,7 +27,7 @@ export default function Header() {
     return () => { document.removeEventListener('keydown', k); document.body.classList.remove('lock'); };
   }, [open]);
   const jump = (id) => { setOpen(false); const go = () => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); if (loc.pathname === '/') go(); else { nav('/'); setTimeout(go, 140); } };
-  const links = hasAccount
+  const links = user
     ? [<NavLink key="h" to="/app/home">{t('Home')}</NavLink>, <NavLink key="w" to="/app/today">{t('Today')}</NavLink>, <NavLink key="n" to="/newsletter">{t('Newsletter')}</NavLink>]
     : [<button key="a" className="navlink" onClick={() => jump('toolkit')}>{t('Toolkit')}</button>, <button key="b" className="navlink" onClick={() => jump('how')}>{t('How it works')}</button>, <NavLink key="n" to="/newsletter">{t('Newsletter')}</NavLink>];
   const leave = () => { signOut(); nav('/'); };
@@ -36,12 +35,12 @@ export default function Header() {
     <>
     <header className="site">
       <div className="container bar-row">
-        <Logo animate to={hasAccount ? '/app/home' : '/'} />
+        <Logo animate to={user ? '/app/home' : '/'} />
         <nav className="nav" aria-label={t('Main')}>{links}</nav>
         <div className="actions">
-          {hasAccount && <NotificationCenter />}<Toggles />
-          {hasAccount ? <Button variant="secondary" size="sm" className="hide-sm" onClick={leave}>{t('Sign out')}</Button>
-            : !APP.publicShowcase && <><Link className="navlink hide-sm" to="/sign-in?tab=signin">{t('Sign in')}</Link><Button to="/sign-in" size="sm" className="hide-sm">{t('Create free account')}</Button></>}
+          {user && <NotificationCenter />}<Toggles />
+          {user ? <Button variant="secondary" size="sm" className="hide-sm" onClick={leave}>{t('Sign out')}</Button>
+            : <><Link className="navlink hide-sm" to="/sign-in?tab=signin">{t('Sign in')}</Link><Button to="/sign-in" size="sm" className="hide-sm">{t('Create free account')}</Button></>}
           <button className="iconbtn burger" aria-expanded={open} aria-controls="drawer" aria-label={t('Menu')} onClick={() => setOpen(!open)}><Icon name={open ? 'x' : 'menu'} /></button>
         </div>
       </div>
@@ -49,8 +48,8 @@ export default function Header() {
       <div id="drawer" className={`drawer${open ? ' open' : ''}`}>
         <nav className="drawer-in" aria-label={t('Menu')}>
           {links}
-          {hasAccount ? <Button variant="secondary" onClick={leave}>{t('Sign out')}</Button>
-            : !APP.publicShowcase && <><Link className="navlink" to="/sign-in?tab=signin">{t('Sign in')}</Link><Button to="/sign-in">{t('Create free account')}</Button></>}
+          {user ? <Button variant="secondary" onClick={leave}>{t('Sign out')}</Button>
+            : <><Link className="navlink" to="/sign-in?tab=signin">{t('Sign in')}</Link><Button to="/sign-in">{t('Create free account')}</Button></>}
         </nav>
       </div>
     </>

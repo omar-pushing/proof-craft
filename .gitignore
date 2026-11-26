@@ -1,9 +1,4 @@
 node_modules
 dist
 dist-test
-.vercel
-.env
 .env.local
-.env.preview
-*.log
-.DS_Store

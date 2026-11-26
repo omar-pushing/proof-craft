@@ -5,7 +5,6 @@ import SectionHeading from '@/components/system/SectionHeading.jsx';
 import { Mocks } from './Mocks.jsx';
 import { useReveal } from './useReveal.js';
 import { useT } from '@/i18n/index.js';
-import { APP } from '@/config/app.js';
 
 const TOOLS = [
   { id: 'plan', icon: 'plan', label: 'Plan', title: 'A calm view of what needs you now', body: 'Deadlines from courses, study plans and team work meet in one ordered day. Nothing is hidden behind colour or a crowded calendar.', note: 'One agenda, ordered by urgency', to: '/app/today', cta: 'Open Today', tone: 'blue' },
@@ -33,9 +32,7 @@ function Toolkit() {
   const key = (event, index) => { let next = index; const rtl = document.documentElement.dir === 'rtl'; if (event.key === 'Home') next = 0; else if (event.key === 'End') next = TOOLS.length - 1; else if (event.key === 'ArrowRight') next = (index + (rtl ? -1 : 1) + TOOLS.length) % TOOLS.length; else if (event.key === 'ArrowLeft') next = (index + (rtl ? 1 : -1) + TOOLS.length) % TOOLS.length; else return; event.preventDefault(); selectTool(next, true); requestAnimationFrame(() => tabs.current[next]?.focus()); };
   return <section ref={story} className="lp-section lp-toolkit toolkit-story" id="toolkit" tabIndex={-1}><div className="toolkit-sticky"><div className="container toolkit-sticky-inner"><div className="toolkit-heading-row"><SectionHeading icon="workspace" eyebrow={t('The toolkit')} title={t('Start from the work in front of you')} body={t('Plan, study, projects, sharing and career work stay in the same workspace. Scroll through the tools or choose one.')} /><span className="toolkit-count" aria-hidden="true">{String(activeIndex + 1).padStart(2, '0')} / 05</span></div>
     <div className="toolkit-stage"><div className="tool-rail" role="tablist" aria-label={t('Explore ProofCraft tools')}>{TOOLS.map((item, index) => <button key={item.id} id={`tab-${item.id}`} ref={(el) => { tabs.current[index] = el; }} role="tab" aria-selected={active === item.id} aria-controls={`tool-panel-${item.id}`} tabIndex={active === item.id ? 0 : -1} onClick={() => selectTool(index, true)} onKeyDown={(e) => key(e, index)}><ProofIcon name={item.icon} tone={item.tone} size="sm" /><span><b>{t(item.label)}</b><small>{t(item.note)}</small></span></button>)}</div><div className="story-progress" aria-hidden="true"><span /></div>
-      <article key={tool.id} className="tool-panel" id={`tool-panel-${tool.id}`} role="tabpanel" aria-labelledby={`tab-${tool.id}`}><div className="tool-copy"><span className="ds-kicker">{t(tool.label)}</span><h3>{t(tool.title)}</h3><p>{t(tool.body)}</p>{APP.publicShowcase
-        ? <Button variant="secondary" onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })}>{t('See illustrative example')}</Button>
-        : <Button to={tool.to}>{t(tool.cta)}</Button>}</div><Preview /></article></div>
+      <article key={tool.id} className="tool-panel" id={`tool-panel-${tool.id}`} role="tabpanel" aria-labelledby={`tab-${tool.id}`}><div className="tool-copy"><span className="ds-kicker">{t(tool.label)}</span><h3>{t(tool.title)}</h3><p>{t(tool.body)}</p><Button to={tool.to}>{t(tool.cta)}</Button></div><Preview /></article></div>
   </div></div></section>;
 }
 
@@ -52,10 +49,6 @@ function Connections() { const { t } = useT(); return <section className="lp-sec
 
 export default function Landing() {
   const { t } = useT(); useReveal(); const jump = () => document.getElementById('toolkit')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-  return <div className="landing-v2"><section className="lp-hero"><div className="hero-grid" aria-hidden="true" /><div className="hero-orbit orbit-a" aria-hidden="true"><ProofIcon name="plan" /></div><div className="hero-orbit orbit-b" aria-hidden="true"><ProofIcon name="study" tone="yellow" size="sm" /></div><div className="hero-orbit orbit-c" aria-hidden="true"><ProofIcon name="career" tone="green" /></div><div className="container lp-hero-inner"><div className="lp-hero-copy"><h1>{t('Plan your studies. Build proof of your skills.')}</h1><p>{t('ProofCraft keeps deadlines, study plans, group projects and career evidence in one workspace, so the work you finish today stays useful for what comes next.')}</p><div className="hero-cta">{APP.publicShowcase
-    ? <Button onClick={jump}>{t('Explore the toolkit')}</Button>
-    : <><Button to="/sign-in">{t('Create free account')}</Button><Button variant="secondary" onClick={jump}>{t('Explore the toolkit')}</Button></>}</div></div></div></section><Toolkit /><WorkThread /><Connections />
-    <section className="lp-final"><div className="container"><ProofIcon name="plan" tone="yellow" size="lg" /><h2>{t('Start with one real task')}</h2><p>{t('Add a deadline, build a study plan, or save a piece of evidence. You can add the rest when you need it.')}</p>{APP.publicShowcase
-      ? <Button onClick={jump}>{t('Explore the toolkit')}</Button>
-      : <Button to="/sign-in">{t('Start your workspace')}</Button>}</div></section></div>;
+  return <div className="landing-v2"><section className="lp-hero"><div className="hero-grid" aria-hidden="true" /><div className="hero-orbit orbit-a" aria-hidden="true"><ProofIcon name="plan" /></div><div className="hero-orbit orbit-b" aria-hidden="true"><ProofIcon name="study" tone="yellow" size="sm" /></div><div className="hero-orbit orbit-c" aria-hidden="true"><ProofIcon name="career" tone="green" /></div><div className="container lp-hero-inner"><div className="lp-hero-copy"><h1>{t('Plan your studies. Build proof of your skills.')}</h1><p>{t('ProofCraft keeps deadlines, study plans, group projects and career evidence in one workspace, so the work you finish today stays useful for what comes next.')}</p><div className="hero-cta"><Button to="/sign-in">{t('Create free account')}</Button><Button variant="secondary" onClick={jump}>{t('Explore the toolkit')}</Button></div></div></div></section><Toolkit /><WorkThread /><Connections />
+    <section className="lp-final"><div className="container"><ProofIcon name="plan" tone="yellow" size="lg" /><h2>{t('Start with one real task')}</h2><p>{t('Add a deadline, build a study plan, or save a piece of evidence. You can add the rest when you need it.')}</p><Button to="/sign-in">{t('Start your workspace')}</Button></div></section></div>;
 }
