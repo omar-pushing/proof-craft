@@ -41,7 +41,7 @@ Conventions
 ## CV Maker and ATS Check
 
 - `domain/cv.js` is the CV model: personal details, summary, skills groups, 9 list sections (experience, education, projects, certifications, awards, languages, volunteering, publications, references), custom sections, section order and visibility, design settings, English or Arabic. One `SCHEMA` drives the editor, the templates and the exporters.
-- `domain/cvTemplates.js` lists 12 templates (10 single-column, 2 two-column flagged as parser-risky). Layout is pure CSS in `styles/cv.css`, so adding a template means a registry entry plus one CSS block.
+- `domain/cvTemplates.js` lists 32 templates, with single-column options marked as ATS-safe and multi-column options clearly flagged as parser-risky. Layout is pure CSS in `styles/cv.css`, so adding a template means a registry entry plus one CSS block.
 - Exports: PDF through the browser print dialog (`@page` size and margin follow the design), Word (.doc, semantic single-column HTML), plain text, JSON Resume. JSON Resume import maps back to the model, so a CV can move to and from other builders.
 - `domain/ats.js` is pure and tested: keyword extraction from a job description (known skills with aliases and acronyms, repeated phrases, weight by Requirements and Nice to have sections), presence matching with light stemming, text similarity, and about 30 formatting, content and language findings (parseability, dates, bullet length, action verbs, weak phrases, numbers, tense, pronouns, buzzwords, skills not backed by work, layout columns, length). There is deliberately no overall score.
 - Prior art studied: Reactive Resume (MIT) for the template and export feature set, Resume Matcher (Apache-2.0) for keyword and similarity matching, and university career-centre ATS guidance for the formatting rules. No code was copied; the ML models those tools use are replaced by transparent rules that run in the browser.
@@ -56,7 +56,7 @@ English keeps Young Serif and Readex Pro. Arabic uses Thmanyah when the files ar
 
 ## Accounts, consent and Google sign-in
 
-- Sign-up is three short steps: name, phone (Egyptian numbers normalised to E.164) and optional email; then optional questions (student or not, university, goals, how you heard, an optional money question with its own consent); then terms, age and marketing consent. `docs/data-collection.md` lists every field, why it exists and how sensitive it is.
+- Sign-up is three focused steps: first and last name, country-aware phone and required email; then two personalisation answers plus optional profile questions; then separate required Terms and Privacy confirmations and an optional newsletter checkbox. Google users follow the same completion flow. `docs/data-collection.md` lists every field, why it exists and how sensitive it is.
 - Consent is stored with the account (terms and privacy version, timestamp, marketing, hardship) and can be changed in Settings.
 - Google: set `VITE_GOOGLE_CLIENT_ID`. The button uses Google Identity Services and returns an ID token. The browser only decodes it; a real deployment must verify the token on the server (`POST /auth/google`: signature, audience, expiry, `email_verified`) before creating a session. Without a client ID the button is shown disabled with an explanation.
 - Phone numbers are not verified in this build. Production should send an SMS code (or rely on Google) before trusting a number.
@@ -67,7 +67,7 @@ English keeps Young Serif and Readex Pro. Arabic uses Thmanyah when the files ar
 
 ## Legal pages
 
-`features/legal` holds Privacy Policy, Terms of Use and Cookies and storage, driven by `config/legal.js`. They are drafts written for this product and Egypt's PDPL, not legal advice. Have a lawyer review them and fill in the entity, address and emails. The Arabic version shows a plain-language summary only; the full Arabic legal text still needs a professional translation.
+`features/legal` holds Privacy Policy, Terms of Use and Cookies and storage, driven by `config/legal.js`. They are drafts written for this product and Egypt's PDPL, not legal advice. Have a lawyer review them and add verified entity/contact details only when they are active. The Arabic version shows a plain-language summary only; the full Arabic legal text still needs a professional translation.
 
 ## Study Timer
 

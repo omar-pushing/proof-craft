@@ -5,10 +5,9 @@
   --action: #2F45D0; --action-hover: #2539B0; --on-action: #FFFFFF;
   --marker: #FFD84D; --ok: #1E7A46; --warn: #8A5A00; --bad: #B42318;
   --nib: #161A2E; --nib-key: #FFD84D;
-  --shadow: 0 24px 48px -28px rgba(22, 26, 46, .35);
-  /* Arabic glyphs come from Thmanyah when installed; the unicode-range in fonts.css keeps Latin on the English fonts. */
-  --font-body: "Thmanyah Sans", "Readex Pro", system-ui, sans-serif;
-  --font-display: "Thmanyah Serif Display", "Young Serif", Georgia, serif;
+  --shadow: 0 24px 48px -28px rgba(22, 26, 46, .35); --shadow-soft: 0 18px 50px -38px rgba(22, 26, 46, .45);
+  --font-body: Arial, "Segoe UI", Tahoma, system-ui, sans-serif;
+  --font-display: Georgia, "Times New Roman", serif;
   --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 72px;
   --fs-sm: .875rem; --fs-md: 1rem; --fs-lg: 1.125rem; --fs-xl: 1.375rem;
   --r: 10px; --r-lg: 18px; --ease: cubic-bezier(.2, .8, .2, 1); --t1: 150ms; --t2: 240ms;

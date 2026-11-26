@@ -4,7 +4,7 @@ import { useT } from '@/i18n/index.js';
 
 export function PostCard({ p }) {
   const { t } = useT();
-  return (<Link to={`/newsletter/${p.slug}`} className="post"><div className={`cover c${p.cover}`} /><div className="post-body"><span className="tag">{t(p.tag)}</span><h3>{p.title}</h3><p className="muted">{p.dek}</p><small className="muted">{p.mins} {t('min read')}</small></div></Link>);
+  return (<Link to={`/newsletter/${p.slug}`} className="post"><div className={`cover c${p.cover}`} /><div className="post-body"><span className="tag">{t(p.tag)}</span><h3>{t(p.title)}</h3><p className="muted">{t(p.dek)}</p><small className="muted">{p.mins} {t('min read')}</small></div></Link>);
 }
 export default function BlogIndex() {
   const { t } = useT();

@@ -1,60 +1,54 @@
-import { Link } from 'react-router-dom';
-import Button, { Arrow } from '@/components/ui/Button.jsx';
-import GamePanel from '@/features/progress/GamePanel.jsx';
-import { PostCard } from '@/features/blog/BlogIndex.jsx';
-import { POSTS } from '@/features/blog/posts.js';
+import { useEffect, useRef, useState } from 'react';
+import Button from '@/components/ui/Button.jsx';
+import ProofIcon from '@/components/system/ProofIcon.jsx';
+import SectionHeading from '@/components/system/SectionHeading.jsx';
 import { Mocks } from './Mocks.jsx';
 import { useReveal } from './useReveal.js';
 import { useT } from '@/i18n/index.js';
 
-const FEATURES = [
-  { tag: 'Plan', title: 'Know what is due before it is late', body: 'Put every deadline in one agenda. Today separates what is overdue, due today and coming up, and lists the tasks your teammates assigned to you.', points: ['Add a task in seconds, with or without a course', 'Overdue, due today and upcoming are written out, not just coloured', 'Export your deadlines to any calendar app'], to: '/app/today', cta: 'Open Today', mock: 'plan' },
-  { tag: 'Study', title: 'Study with a plan, not a panic', body: 'Enter the exam date, your topics and the minutes you really have each day. ProofCraft spreads short sessions across the days and tells you what does not fit. Then review your own cards at 1, 3, 7, 14 and 30 days.', points: ['You confirm the plan before it reaches Today', 'Cards you miss come back tomorrow', 'The grade planner shows the average you need on the work left'], to: '/app/study/exam', cta: 'Open Exam Planner', mock: 'study' },
-  { tag: 'Projects', title: 'Work on a project with your group', body: 'Create a workspace, invite classmates with a code and give each person a role. Everyone sees the same board, shared notes and discussion, and every change is logged.', points: ['Owner, editor and viewer roles', 'Assign tasks and see who joined and what changed', 'Tasks assigned to you show up on Today'], to: '/app/projects/workspaces', cta: 'Create a workspace', mock: 'team' },
-  { tag: 'Share', title: 'Send a study plan in one link', body: 'Share an exam plan or a flashcard deck with a friend. They open a read-only copy and can add it to their own account in one click. The link carries the plan itself, so nothing is uploaded.', points: ['Plans and decks open without an account', 'A link is a snapshot, so your later edits stay private', 'Or post the plan inside a workspace for the whole group'], to: '/app/study/exam', cta: 'Plan an exam', mock: 'share' },
-  { tag: 'Career', title: 'Apply with work you can point to', body: 'Save what you did on each project, pick one of 12 templates and export to PDF, Word or text. ATS Check reads your CV the way a parser would and compares it with the job post you paste.', points: ['Evidence feeds your CV and your interview answers', 'Single-column templates that parsers read in the right order', 'Track every application with deadlines and follow-ups'], to: '/app/career/cv', cta: 'Open CV Maker', mock: 'career' },
+const TOOLS = [
+  { id: 'plan', icon: 'plan', label: 'Plan', title: 'A calm view of what needs you now', body: 'Deadlines from courses, study plans and team work meet in one ordered day. Nothing is hidden behind colour or a crowded calendar.', note: 'One agenda, ordered by urgency', to: '/app/today', cta: 'Open Today', tone: 'blue' },
+  { id: 'study', icon: 'study', label: 'Study', title: 'A study plan that respects your actual week', body: 'Set the exam date, list the topics and enter the minutes you really have. ProofCraft builds a plan you can inspect before accepting it.', note: 'Short sessions with room to adjust', to: '/app/study/exam', cta: 'Plan an exam', tone: 'yellow' },
+  { id: 'team', icon: 'projects', label: 'Projects', title: 'Every task has an owner and a next decision', body: 'The brief, responsibilities and discussion stay beside the work. The group can see what changed without searching through messages.', note: 'Clear ownership without another spreadsheet', to: '/app/projects/workspaces', cta: 'Start a workspace', tone: 'ink' },
+  { id: 'share', icon: 'share', label: 'Share', title: 'Send the useful part, keep the rest private', body: 'Create a read-only snapshot of a plan or deck. Later edits remain private until you decide to share again.', note: 'A clean link with predictable access', to: '/app/study/exam', cta: 'Create a plan', tone: 'green' },
+  { id: 'career', icon: 'career', label: 'Career', title: 'Keep the detail that makes your work credible', body: 'Record your contribution while the project is fresh, then reuse it in a CV and interview answer without inventing a story later.', note: 'Your own evidence, ready when you need it', to: '/app/career/evidence', cta: 'Save evidence', tone: 'blue' },
 ];
-const STEPS = [['Plan', 'Put every deadline and exam in Today.'], ['Study', 'Short sessions and spaced reviews keep it fresh.'], ['Work together', 'One board and one discussion for the group.'], ['Apply', 'Turn finished work into a CV and interview answers.']];
-const FAQ = [['Do I need a university email?', 'No. ProofCraft never asks for university portal passwords.'], ['Does it cost anything?', 'No. Registration and every student tool are free.'], ['Who can see my work?', 'Only you, plus the people you invite to a workspace or send a link to. Public pages exist only when you publish them.'], ['How does sharing work?', 'A share link holds a snapshot of the plan or deck. Anyone with the link can read it. Workspaces are visible to their members only.'], ['What does ATS Check do?', 'It checks formatting and writing the way a parser would, and shows which keywords from a job post your CV covers. It does not give a hiring score and cannot predict any employer system.'], ['Which languages are supported?', 'The workspace works in English and Arabic.']];
-const EXAMPLE = { xp: 140, streak: 6, counts: { done: 5, plan: 1, card: 10, team: 1 } };
+
+function Toolkit() {
+  const { t } = useT(); const [active, setActive] = useState('plan'); const tabs = useRef([]); const story = useRef(null); const shownIndex = useRef(0); const targetIndex = useRef(0); const stepTimer = useRef(0); const manualUntil = useRef(0); const tool = TOOLS.find((item) => item.id === active); const activeIndex = TOOLS.findIndex((item) => item.id === active); const Preview = Mocks[active];
+  const selectTool = (index, moveStory = false) => {
+    const next = Math.max(0, Math.min(TOOLS.length - 1, index)); clearTimeout(stepTimer.current); stepTimer.current = 0; shownIndex.current = next; targetIndex.current = next; manualUntil.current = Date.now() + 1100; setActive(TOOLS[next].id);
+    if (!moveStory || !story.current || !matchMedia('(min-width: 760px)').matches) return;
+    const start = scrollY + story.current.getBoundingClientRect().top; const distance = Math.max(0, story.current.offsetHeight - innerHeight); const progress = (next + .35) / TOOLS.length;
+    scrollTo({ top: start + distance * progress, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  };
+  useEffect(() => {
+    const node = story.current; if (!node) return undefined; const desktop = matchMedia('(min-width: 760px)'); let frame = 0;
+    const advance = () => { stepTimer.current = 0; const target = targetIndex.current; if (shownIndex.current === target) return; shownIndex.current += Math.sign(target - shownIndex.current); setActive(TOOLS[shownIndex.current].id); if (shownIndex.current !== target) stepTimer.current = setTimeout(advance, 460); };
+    const update = () => { frame = 0; if (!desktop.matches) { node.style.setProperty('--story-progress', '0'); return; } const rect = node.getBoundingClientRect(); const distance = Math.max(1, node.offsetHeight - innerHeight); const progress = Math.max(0, Math.min(1, -rect.top / distance)); const index = Math.min(TOOLS.length - 1, Math.floor(progress * TOOLS.length)); node.style.setProperty('--story-progress', String(progress)); if (Date.now() < manualUntil.current) return; targetIndex.current = index; if (shownIndex.current !== index && !stepTimer.current) advance(); };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); }; update(); addEventListener('scroll', schedule, { passive: true }); addEventListener('resize', schedule); desktop.addEventListener('change', schedule);
+    return () => { cancelAnimationFrame(frame); clearTimeout(stepTimer.current); removeEventListener('scroll', schedule); removeEventListener('resize', schedule); desktop.removeEventListener('change', schedule); };
+  }, []);
+  const key = (event, index) => { let next = index; const rtl = document.documentElement.dir === 'rtl'; if (event.key === 'Home') next = 0; else if (event.key === 'End') next = TOOLS.length - 1; else if (event.key === 'ArrowRight') next = (index + (rtl ? -1 : 1) + TOOLS.length) % TOOLS.length; else if (event.key === 'ArrowLeft') next = (index + (rtl ? 1 : -1) + TOOLS.length) % TOOLS.length; else return; event.preventDefault(); selectTool(next, true); requestAnimationFrame(() => tabs.current[next]?.focus()); };
+  return <section ref={story} className="lp-section lp-toolkit toolkit-story" id="toolkit" tabIndex={-1}><div className="toolkit-sticky"><div className="container toolkit-sticky-inner"><div className="toolkit-heading-row"><SectionHeading icon="workspace" eyebrow={t('The toolkit')} title={t('Start from the work in front of you')} body={t('Plan, study, projects, sharing and career work stay in the same workspace. Scroll through the tools or choose one.')} /><span className="toolkit-count" aria-hidden="true">{String(activeIndex + 1).padStart(2, '0')} / 05</span></div>
+    <div className="toolkit-stage"><div className="tool-rail" role="tablist" aria-label={t('Explore ProofCraft tools')}>{TOOLS.map((item, index) => <button key={item.id} id={`tab-${item.id}`} ref={(el) => { tabs.current[index] = el; }} role="tab" aria-selected={active === item.id} aria-controls={`tool-panel-${item.id}`} tabIndex={active === item.id ? 0 : -1} onClick={() => selectTool(index, true)} onKeyDown={(e) => key(e, index)}><ProofIcon name={item.icon} tone={item.tone} size="sm" /><span><b>{t(item.label)}</b><small>{t(item.note)}</small></span></button>)}</div><div className="story-progress" aria-hidden="true"><span /></div>
+      <article key={tool.id} className="tool-panel" id={`tool-panel-${tool.id}`} role="tabpanel" aria-labelledby={`tab-${tool.id}`}><div className="tool-copy"><span className="ds-kicker">{t(tool.label)}</span><h3>{t(tool.title)}</h3><p>{t(tool.body)}</p><Button to={tool.to}>{t(tool.cta)}</Button></div><Preview /></article></div>
+  </div></div></section>;
+}
+
+function WorkThread() {
+  const { t } = useT(); const steps = [['A date', '18 May', 'The deadline reaches Today and your calendar.'], ['Your part', 'Relational schema', 'The team sees exactly what you own.'], ['The proof', '12 booking workflows', 'The useful detail is saved before it is forgotten.'], ['The outcome', 'CV and interview', 'The same evidence becomes a concise application story.']];
+  return <section className="lp-section thread-section" id="how"><div className="container"><SectionHeading icon="evidence" eyebrow={t('Illustrative use case')} title={t('See one course project move from deadline to career evidence')} body={t('This example follows a clinic booking database from its due date to the contribution saved for a CV and interview.')} />
+    <div className="thread-layout"><aside><ProofIcon name="projects" tone="yellow" size="lg" /><span className="ds-kicker">{t('Course project')}</span><h3>{t('Clinic booking database')}</h3><p>{t('Database Systems · four-person team')}</p></aside><ol>{steps.map(([label, value, body], i) => <li key={label} className="reveal" style={{ '--i': i }}><span>{`0${i + 1}`}</span><div><small>{t(label)}</small><b>{t(value)}</b><p>{t(body)}</p></div></li>)}</ol></div>
+  </div></section>;
+}
+
+function Connections() { const { t } = useT(); return <section className="lp-section connect-section"><div className="container"><SectionHeading icon="connections" eyebrow={t('Works with your routine')} title={t('Keep your files and calendar up to date')} body={t('Send document copies to Google Drive and confirmed study dates to Google Calendar. You choose what syncs and can disconnect at any time.')} />
+  <div className="connection-band"><div><ProofIcon name="drive" /><span><b>{t('Google Drive')}</b><small>{t('Store exported CVs, plans and evidence files in a folder you choose.')}</small></span></div><i aria-hidden="true" /><div><ProofIcon name="workspace" tone="yellow" /><span><b>{t('ProofCraft workspace')}</b><small>{t('Keep the structured work that powers your day and progress view.')}</small></span></div><i aria-hidden="true" /><div><ProofIcon name="calendar" tone="green" /><span><b>{t('Google Calendar')}</b><small>{t('Add confirmed exams and study sessions with reminders you control.')}</small></span></div></div>
+  <p className="connection-note">{t('Connections are optional and require your permission. ProofCraft never asks for your Google password.')}</p></div></section>; }
 
 export default function Landing() {
-  const { t } = useT(); useReveal();
-  const jump = () => document.getElementById('toolkit')?.scrollIntoView({ behavior: 'smooth' });
-  return (
-    <>
-      <section className="hero" aria-labelledby="hero-title">
-        <div className="hero-paper" aria-hidden="true" />
-        <div className="container hero-in">
-          <h1 id="hero-title"><span>{t('Plan college.')}</span> <span className="hl">{t('Prepare for your career.')}</span></h1>
-          <p className="hero-sub">{t('A free workspace for college students. Plan your semester, study for exams, work on projects with your group, and turn what you finish into a CV.')}</p>
-          <div className="hero-cta"><Button to="/sign-in">{t('Create free account')} <Arrow /></Button><Button variant="secondary" onClick={jump}>{t('See what is inside')} <Arrow /></Button></div>
-          <p className="hero-note">{t('Free. No university email needed.')}</p>
-        </div>
-      </section>
-
-      <section className="section" id="toolkit" tabIndex={-1}><div className="container features">
-        {FEATURES.map((f, i) => { const Mock = Mocks[f.mock]; return (
-          <div key={f.tag} className={`feature reveal${i % 2 ? ' rev' : ''}`}>
-            <div className="feature-text"><span className="tag">{t(f.tag)}</span><h2>{t(f.title)}</h2><p>{t(f.body)}</p><ul className="checks">{f.points.map((p) => <li key={p}>{t(p)}</li>)}</ul><Button to={f.to}>{t(f.cta)} <Arrow /></Button></div>
-            <div className="frame"><Mock /></div>
-          </div>); })}
-      </div></section>
-
-      <section className="section alt" id="how" tabIndex={-1}><div className="container"><h2>{t('From coursework to your first job')}</h2>
-        <ol className="steps">{STEPS.map(([a, b], i) => <li key={a} className="step reveal" style={{ '--i': i }}><span className="num">{i + 1}</span><h3>{t(a)}</h3><p>{t(b)}</p></li>)}</ol></div></section>
-
-      <section className="section"><div className="container two">
-        <div className="reveal"><h2>{t('Earn XP for what you actually finish')}</h2><p className="lede">{t('Finish a task, rate a card, confirm a plan or join a team and you earn XP. Keep a daily streak and unlock badges as your CV takes shape. Your progress is private and never ranked against anyone.')}</p><Button to="/sign-in">{t('Create free account')} <Arrow /></Button></div>
-        <div className="reveal"><GamePanel data={EXAMPLE} example /></div>
-      </div></section>
-
-      <section className="section alt"><div className="container"><div className="row between"><h2>{t('From the newsletter')}</h2><Button to="/newsletter" variant="secondary" size="sm">{t('Read all articles')} <Arrow /></Button></div>
-        <div className="posts">{POSTS.map((p) => <div key={p.slug} className="reveal"><PostCard p={p} /></div>)}</div></div></section>
-
-      <section className="section"><div className="container narrow"><h2>{t('Questions')}</h2><div className="faq">{FAQ.map(([q, a]) => <details key={q}><summary>{t(q)}</summary><p>{t(a)}</p></details>)}</div></div></section>
-
-      <section className="cta-band"><div className="container"><h2>{t('Start with this week')}</h2><p>{t('Add one deadline and see it on Today.')}</p><Button to="/sign-in" variant="marker">{t('Create free account')} <Arrow /></Button></div></section>
-    </>
-  );
+  const { t } = useT(); useReveal(); const jump = () => document.getElementById('toolkit')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  return <div className="landing-v2"><section className="lp-hero"><div className="hero-grid" aria-hidden="true" /><div className="hero-orbit orbit-a" aria-hidden="true"><ProofIcon name="plan" /></div><div className="hero-orbit orbit-b" aria-hidden="true"><ProofIcon name="study" tone="yellow" size="sm" /></div><div className="hero-orbit orbit-c" aria-hidden="true"><ProofIcon name="career" tone="green" /></div><div className="container lp-hero-inner"><div className="lp-hero-copy"><h1>{t('Plan your studies. Build proof of your skills.')}</h1><p>{t('ProofCraft keeps deadlines, study plans, group projects and career evidence in one workspace, so the work you finish today stays useful for what comes next.')}</p><div className="hero-cta"><Button to="/sign-in">{t('Create free account')}</Button><Button variant="secondary" onClick={jump}>{t('Explore the toolkit')}</Button></div></div></div></section><Toolkit /><WorkThread /><Connections />
+    <section className="lp-final"><div className="container"><ProofIcon name="plan" tone="yellow" size="lg" /><h2>{t('Start with one real task')}</h2><p>{t('Add a deadline, build a study plan, or save a piece of evidence. You can add the rest when you need it.')}</p><Button to="/sign-in">{t('Start your workspace')}</Button></div></section></div>;
 }

@@ -21,10 +21,10 @@ export default function Article() {
         <Link to="/newsletter" className="back"><span className="arr back">←</span> {t('All articles')}</Link>
         <div className={`cover tall c${p.cover}`} />
         <p className="meta"><span className="tag">{t(p.tag)}</span> <span className="muted">{p.mins} {t('min read')}</span></p>
-        <h1 className="h1-s">{p.title}</h1><p className="dek">{p.dek}</p>
-        {p.sections.map(([h, body], k) => (<div key={h}><h2>{h}</h2><p>{body}</p>{k === 0 && <blockquote>{p.quote}</blockquote>}</div>))}
+        <h1 className="h1-s">{t(p.title)}</h1><p className="dek">{t(p.dek)}</p>
+        {p.sections.map(([h, body], k) => (<div key={h}><h2>{t(h)}</h2><p>{t(body)}</p>{k === 0 && <blockquote>{t(p.quote)}</blockquote>}</div>))}
         <aside className="try"><div><b>{t('Try it now')}</b><p className="muted">{t('Put this into practice in your free workspace.')}</p></div><Button to={p.tool[0]}>{t(p.tool[1])} <Arrow /></Button></aside>
-        <div className="next"><small className="muted">{t('Next article')}</small><Link to={`/newsletter/${next.slug}`}><h3>{next.title}</h3></Link></div>
+        <div className="next"><small className="muted">{t('Next article')}</small><Link to={`/newsletter/${next.slug}`}><h3>{t(next.title)}</h3></Link></div>
       </article>
     </>
   );

@@ -5,7 +5,7 @@ import { LEGAL } from '@/config/legal.js';
 
 /**
  * Accounts. In this build profiles live in this browser (localStorage) and each tab has its own signed-in user (sessionStorage),
- * so two tabs can act as two people. Phone numbers are NOT verified here: production must verify by SMS code or by Google.
+ * so two tabs can act as two people. The preview auth driver records verification state; production must verify identifiers server-side.
  * The rest of the app only uses { uid, useUser() }, so replacing this module with a real backend does not touch features.
  */
 const USERS = 'pc:users';
@@ -18,21 +18,27 @@ export const getUser = () => { const s = session.get(); return s.users.find((u) 
 const save = (users) => { try { localStorage.setItem(USERS, JSON.stringify(users)); } catch { /* ignore */ } session.set({ users }); };
 const login = (id) => { try { sessionStorage.setItem('pc:uid', id); } catch { /* ignore */ } session.set({ uid: id }); };
 export const isAdmin = (u) => !!u && (u.admin === true || APP.adminEmails.includes((u.email || '').toLowerCase()));
+export const adminRole = (u) => (isAdmin(u) ? (u.adminRole || 'owner') : null);
+export const listUsers = () => readUsers();
+export const loginUser = (id) => { const user = readUsers().find((u) => u.id === id); if (user) login(id); return user || null; };
 
 /** @returns {{user?:object,error?:'phone-exists'|'email-exists'}} */
-export function signUp({ name, phone, email = '', provider = 'phone', sub = '', picture = '', profile = {}, consent = {} }) {
+export function signUp({ firstName = '', lastName = '', name = '', phone, email = '', provider = 'phone', sub = '', picture = '', profile = {}, consent = {}, verification = {} }) {
   const users = readUsers();
   if (users.some((u) => u.phone && u.phone === phone)) return { error: 'phone-exists' };
   if (email && users.some((u) => u.email && u.email.toLowerCase() === email.toLowerCase())) return { error: 'email-exists' };
-  const user = { id: uid(), name: name.trim().slice(0, 60), phone, email: email.trim(), provider, sub, picture, created: Date.now(), admin: false, profile,
+  const fullName = `${firstName} ${lastName}`.trim() || name.trim();
+  const user = { id: uid(), firstName: firstName.trim().slice(0, 40), lastName: lastName.trim().slice(0, 40), name: fullName.slice(0, 80), phone, email: email.trim(), provider, sub, picture, created: Date.now(), admin: false, adminRole: null, status: 'active', profile,
+    verification: { email: false, phone: false, ...verification },
     consent: { termsVersion: LEGAL.termsVersion, privacyVersion: LEGAL.privacyVersion, at: Date.now(), marketing: false, hardship: false, ...consent } };
   save([...users, user]); login(user.id); return { user };
 }
 export function signInPhone(phone) { const u = readUsers().find((x) => x.phone === phone); if (u) login(u.id); return u || null; }
+export function signInEmail(email) { const value = String(email || '').toLowerCase(); const u = readUsers().find((x) => x.email && x.email.toLowerCase() === value); if (u) login(u.id); return u || null; }
 export function signInGoogle({ sub, email }) { const u = readUsers().find((x) => (x.sub && x.sub === sub) || (email && x.email && x.email.toLowerCase() === email.toLowerCase())); if (u) login(u.id); return u || null; }
 export function signInExisting(id) { if (readUsers().some((u) => u.id === id)) login(id); }
 export function updateUser(id, patch) {
-  save(readUsers().map((u) => (u.id !== id ? u : { ...u, ...patch, profile: { ...u.profile, ...(patch.profile || {}) }, consent: { ...u.consent, ...(patch.consent || {}) } })));
+  save(readUsers().map((u) => (u.id !== id ? u : { ...u, ...patch, profile: { ...u.profile, ...(patch.profile || {}) }, consent: { ...u.consent, ...(patch.consent || {}) }, verification: { ...u.verification, ...(patch.verification || {}) } })));
 }
 export function signOut() { try { sessionStorage.removeItem('pc:uid'); } catch { /* ignore */ } session.set({ uid: null }); }
 export function deleteAccount(id) {

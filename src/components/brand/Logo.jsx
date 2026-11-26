@@ -7,7 +7,7 @@ export const WORD = 'ProofCraft';
 /** The wordmark as letter spans, so each letter can be uncovered by the nib. */
 export function Wordmark({ wordRef }) { return <span className="wm" ref={wordRef} aria-hidden="true">{[...WORD].map((c, i) => <span className="ch" key={i}>{c}</span>)}</span>; }
 
-export default function Logo({ animate = false }) {
+export default function Logo({ animate = false, to = '/' }) {
   const nib = useRef(null), word = useRef(null), played = useRef(false);
   const play = () => writeWordmark(nib.current, word.current);
   useEffect(() => {
@@ -16,5 +16,5 @@ export default function Logo({ animate = false }) {
     if (seen) return;
     const run = () => setTimeout(play, 250); document.fonts?.ready ? document.fonts.ready.then(run) : run();
   }, [animate]);
-  return (<Link to="/" className="lockup" aria-label="ProofCraft" onClick={() => setTimeout(play, 60)}><NibMark ref={nib} /><Wordmark wordRef={word} /></Link>);
+  return (<Link to={to} className="lockup" aria-label="ProofCraft" onClick={() => setTimeout(play, 60)}><NibMark ref={nib} /><Wordmark wordRef={word} /></Link>);
 }

@@ -16,7 +16,7 @@ export default function LegalPage({ title, updated, intro, summaryAr, sections }
         {lang === 'ar' && summaryAr && <aside className="notice ok" dir="rtl"><b>ملخص بسيط</b><ul>{summaryAr.map((x, i) => <li key={i}>{x}</li>)}</ul><small>النص الكامل بالإنجليزية هو المرجع حاليًا.</small></aside>}
         <p className="lede">{intro}</p>
         {sections.map((s, i) => (<section key={s.id} id={s.id}><h2>{i + 1}. {s.h}</h2>{s.p.map((b, k) => <Block key={k} b={b} />)}</section>))}
-        <p className="help">{t('Questions about this page?')} <a href={`mailto:${LEGAL.privacyEmail}`}>{LEGAL.privacyEmail}</a> · <Link to="/privacy">{t('Privacy Policy')}</Link> · <Link to="/terms">{t('Terms of Use')}</Link> · <Link to="/cookies">{t('Cookies and storage')}</Link> · <button className="linkish" onClick={() => openFeedback('question')}>{t('Send feedback')}</button></p>
+        <p className="help"><Link to="/privacy">{t('Privacy Policy')}</Link> · <Link to="/terms">{t('Terms of Use')}</Link> · <Link to="/cookies">{t('Cookies and storage')}</Link> · <button className="linkish" onClick={() => openFeedback('question')}>{t('Questions about this page?')}</button></p>
       </article>
     </section>
   );

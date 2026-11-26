@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { elapsedMs, fmtClock, remainingMs } from '@/domain/timer.js';
 import { tick } from '@/state/timerActions.js';
 import { useData, useUserStore } from '@/state/userData.js';
-import { useNow } from './StudyTimer.jsx';
+import { useNow } from '@/lib/useNow.js';
 import { useT } from '@/i18n/index.js';
 
 /** Always mounted inside the app shell: finishes countdowns on any page, shows the running time in the tab title and in the sidebar. */

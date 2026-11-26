@@ -3,7 +3,7 @@ import { LEGAL as L } from '@/config/legal.js';
 
 const sections = [
   { id: 'agree', h: 'Agreement', p: [`By creating an account or using ${L.website} you agree to these terms and to our Privacy Policy. If you do not agree, please do not use ProofCraft.`] },
-  { id: 'who', h: 'Who can use ProofCraft', p: [{ ul: ['You must be 18 or older, or have a parent or guardian\'s agreement.', 'Give accurate details and keep them up to date.', 'One account is for one person. Keep your access safe and tell us if you think someone else is using it.', 'You are responsible for what happens under your account.'] }] },
+  { id: 'who', h: 'Who can use ProofCraft', p: [{ ul: ['ProofCraft is not limited to a particular age group.', 'Give accurate details and keep them up to date.', 'One account is for one person. Keep your access safe and tell us if you think someone else is using it.', 'You are responsible for what happens under your account.'] }] },
   { id: 'what', h: 'What ProofCraft is', p: ['ProofCraft is a free workspace with planning, study, project and career tools. It is a helper, not an authority:', { ul: ['The Exam Planner, Study Lab, Grade Planner and GPA numbers are scenarios based on what you enter. They are not official grades.', 'CV templates and the ATS Check follow common guidance. They do not guarantee that an employer\'s system or a person will read your CV in a certain way, and they do not predict hiring.', 'Nothing here is academic, career, legal or financial advice.'] }] },
   { id: 'content', h: 'Your content', p: ['You own what you create. You give us permission to store, process and display it only so we can run ProofCraft for you and for the people you choose to share it with. You are responsible for having the right to post what you post, and you must not put other people\'s private information into ProofCraft without their permission.'] },
   { id: 'share', h: 'Workspaces and sharing', p: [{ ul: ['Workspace members can see what is posted in the workspace. Owners control roles and can remove members.', 'Anyone who has a share link can read the snapshot it contains. Share links cannot be taken back once someone has opened them, so share carefully.'] }] },
@@ -17,6 +17,6 @@ const sections = [
   { id: 'end', h: 'Ending your use', p: ['You can stop using ProofCraft and delete your account in Settings at any time. We may suspend or end access if these terms are seriously or repeatedly broken, or where the law requires.'] },
   { id: 'law', h: 'Law that applies', p: [`These terms are governed by the laws of the ${L.country}. Disputes are for the competent courts of Egypt, unless the law gives you the right to go elsewhere.`] },
   { id: 'change', h: 'Changes', p: ['We may update these terms. If a change matters, we will tell you in the app before it applies. Using ProofCraft after that means you accept the new terms.'] },
-  { id: 'contact', h: 'Contact', p: [`${L.supportEmail}`] },
+  { id: 'contact', h: 'Contact', p: ['Use the feedback form inside ProofCraft. Verified public contact details will be added here when they are active.'] },
 ];
 export default function Terms() { return <LegalPage title="Terms of Use" updated={L.updated} intro="These are the rules for using ProofCraft. They are short on purpose." sections={sections} />; }

@@ -1,7 +1,8 @@
 /** Single source of truth for workspace navigation. Sidebar, group tabs and routes all read this. */
 export const NAV = [
+  { id: 'home', to: '/app/home', label: 'Home', icon: 'home' },
   { id: 'today', to: '/app/today', label: 'Today', icon: 'today' },
   { id: 'study', to: '/app/study', label: 'Study', icon: 'study', children: [['exam', 'Exam Planner'], ['lab', 'Study Lab'], ['timer', 'Study Timer'], ['grades', 'Grade Planner']] },
-  { id: 'projects', to: '/app/projects', label: 'Projects', icon: 'users', children: [['workspaces', 'Workspaces'], ['research', 'Research Desk']] },
-  { id: 'career', to: '/app/career', label: 'Career', icon: 'briefcase', children: [['evidence', 'Evidence'], ['cv', 'CV Maker'], ['ats', 'ATS Check'], ['tracker', 'Application Tracker'], ['interview', 'Interview Prep']] },
+  { id: 'projects', to: '/app/projects', label: 'Projects', icon: 'projects', children: [['workspaces', 'Workspaces'], ['research', 'Research Desk']] },
+  { id: 'career', to: '/app/career', label: 'Career', icon: 'career', children: [['evidence', 'Evidence'], ['cv', 'CV Maker'], ['ats', 'ATS Check'], ['tracker', 'Application Tracker'], ['interview', 'Interview Prep']] },
 ];

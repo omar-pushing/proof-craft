@@ -74,6 +74,7 @@ test('phone numbers normalise to E.164, Egyptian by default', () => {
   assert.equal(normalizePhone('010 1234 5678').e164, '+201012345678'); assert.equal(normalizePhone('+20 111 234 5678').e164, '+201112345678');
   assert.equal(normalizePhone('٠١٠١٢٣٤٥٦٧٨').e164, '+201012345678'); assert.equal(normalizePhone('0020 15 1234 5678').e164, '+201512345678');
   assert.equal(normalizePhone('0131234567').ok, false); assert.equal(normalizePhone('+966 50 123 4567').e164, '+966501234567'); assert.equal(normalizePhone('').error, 'required'); assert.equal(normalizePhone('abc').ok, false);
+  assert.equal(normalizePhone('050 123 4567', '+966').e164, '+966501234567'); assert.equal(normalizePhone('07911 123456', '+44').e164, '+447911123456');
   assert.ok(validEmail('a@b.co') && !validEmail('a@b'));
 });
 

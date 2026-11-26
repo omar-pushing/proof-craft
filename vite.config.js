@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   build: {
     target: 'es2020',
-    sourcemap: mode === 'production',
+    sourcemap: false,
     outDir: mode === 'test' ? 'dist-test' : 'dist',
     ...(mode === 'test' ? { rollupOptions: { output: { format: 'iife', inlineDynamicImports: true, entryFileNames: 'app.js' } }, cssCodeSplit: false } : {}),
   },

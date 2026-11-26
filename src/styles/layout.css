@@ -1,6 +1,7 @@
 header.site { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); padding-top: env(safe-area-inset-top, 0px); }
 .bar-row, header.site .bar { display: flex; align-items: center; gap: 16px; min-height: var(--header); height: auto; background: none; border-radius: 0; overflow: visible; margin: 0 auto; }
 .lockup { display: inline-flex; align-items: flex-end; gap: 10px; text-decoration: none; color: var(--text); font: 400 1.5rem/1 var(--font-display); direction: ltr; }
+[dir=rtl] header.site .lockup { flex-direction: row-reverse; }
 .nib { height: 36px; width: auto; aspect-ratio: 41.1328 / 75.8672; display: block; overflow: visible; flex: none; } .nib-body { fill: var(--nib); } .nib-key { fill: var(--nib-key); }
 .wm { display: inline-flex; padding-bottom: 3px; } .ch { display: inline-block; }
 .nav { display: flex; gap: 2px; margin-inline-start: 28px; } .nav a, .navlink { padding: 8px 14px; border-radius: 99px; color: var(--text); text-decoration: none; background: none; border: 0; cursor: pointer; font-size: .9375rem; } .nav a:hover, .navlink:hover { background: var(--surface-2); } .nav a.active { background: var(--surface-2); }

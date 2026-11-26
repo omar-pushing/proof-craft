@@ -9,6 +9,7 @@ export const emptyData = () => ({
   tasks: [], plans: [], cards: [], decks: [{ id: 'general', name: 'General' }], deckId: 'general', reviewLog: [], newStats: { date: '', count: 0 }, focus: {}, timeLog: [], goalMins: 120, activeTimer: null, soundOn: true, newPerDay: 10,
   courses: [], scale: 'egypt', scaleRows: SCALES.egypt.rows, prior: { gpa: '', credits: '' }, targetGpa: '',
   evidence: [], sources: [], tracker: [], stories: [], cvs: [], activeCv: null, onboarded: false, xp: 0, streak: 0, last: '', counts: {},
+  integrationPrefs: { driveAuto: true, calendarAuto: true, reminderMins: 60 }, notificationPrefs: { leadDays: 2, browser: false }, nudgeSeen: {},
 });
 const stores = new Map();
 

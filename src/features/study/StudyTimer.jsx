@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import PageHead from '@/components/ui/PageHead.jsx';
 import Button from '@/components/ui/Button.jsx';
 import { Bar, Empty } from '@/components/ui/Bits.jsx';
@@ -7,8 +7,8 @@ import { discardTimer, finishTimer, lapTimer, pauseTimer, resumeTimer, startTime
 import { useData, useUserStore } from '@/state/userData.js';
 import { useT } from '@/i18n/index.js';
 import { addDays, niceDate, todayISO } from '@/lib/dates.js';
+import { useNow } from '@/lib/useNow.js';
 
-export const useNow = (on) => { const [n, setN] = useState(Date.now()); useEffect(() => { if (!on) return; setN(Date.now()); const id = setInterval(() => setN(Date.now()), 250); return () => clearInterval(id); }, [on]); return n; };
 const R = 92, C = 2 * Math.PI * R;
 
 export default function StudyTimer() {

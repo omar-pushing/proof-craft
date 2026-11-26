@@ -13,11 +13,13 @@ const Privacy = page(() => import('@/features/legal/Privacy.jsx'));
 const Terms = page(() => import('@/features/legal/Terms.jsx'));
 const Cookies = page(() => import('@/features/legal/Cookies.jsx'));
 const Timer = page(() => import('@/features/study/StudyTimer.jsx'));
-const Admin = page(() => import('@/features/admin/AdminInbox.jsx'));
+const Admin = page(() => import('@/features/admin/AdminPortal.jsx'));
 const SignIn = page(() => import('@/features/auth/SignIn.jsx'));
 const SharePage = page(() => import('@/features/share/SharePage.jsx'));
 const JoinPage = page(() => import('@/features/share/JoinPage.jsx'));
 const Today = page(() => import('@/features/today/TodayPage.jsx'));
+const Home = page(() => import('@/features/home/HomeDashboard.jsx'));
+const Integrations = page(() => import('@/features/integrations/Integrations.jsx'));
 const Exam = page(() => import('@/features/study/ExamPlanner.jsx'));
 const Lab = page(() => import('@/features/study/StudyLab.jsx'));
 const Grades = page(() => import('@/features/study/GradePlanner.jsx'));
@@ -39,6 +41,7 @@ function RequireAuth({ children }) {
 export default function AppRoutes() {
   return (
     <Routes>
+      <Route path="admin/:section?" element={<RequireAuth><Admin /></RequireAuth>} />
       <Route element={<PublicLayout />}>
         <Route index element={<Landing />} />
         <Route path="newsletter" element={<BlogIndex />} />
@@ -48,7 +51,8 @@ export default function AppRoutes() {
         <Route path="s/:payload" element={<SharePage />} />
         <Route path="join/:code" element={<RequireAuth><JoinPage /></RequireAuth>} />
         <Route path="app" element={<RequireAuth><AppShell /></RequireAuth>}>
-          <Route index element={<Navigate to="today" replace />} />
+          <Route index element={<Navigate to="home" replace />} />
+          <Route path="home" element={<Home />} />
           <Route path="today" element={<Today />} />
           <Route path="study" element={<Group id="study" />}>
             <Route index element={<Navigate to="exam" replace />} />
@@ -63,8 +67,8 @@ export default function AppRoutes() {
             <Route path="evidence" element={<Evidence />} /><Route path="cv" element={<Cv />} /><Route path="ats" element={<Ats />} />
             <Route path="tracker" element={<Tracker />} /><Route path="applications" element={<Navigate to="../tracker" replace />} /><Route path="interview" element={<Interview />} />
           </Route>
-          <Route path="settings" element={<Settings />} /><Route path="admin" element={<Admin />} />
-          <Route path="*" element={<Navigate to="today" replace />} />
+          <Route path="settings" element={<Settings />} /><Route path="integrations" element={<Integrations />} />
+          <Route path="*" element={<Navigate to="home" replace />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
