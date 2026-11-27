@@ -13,6 +13,10 @@ npm run build        # production build in dist/ (code-split, sourcemaps)
 npm run build:preview  # one self-contained dist/index.html for sharing
 ```
 
+## Deploy to Vercel
+
+Use the directory containing this `package.json` as the Vercel Root Directory. The checked-in `vercel.json` pins the Vite build command, `dist` output directory and reproducible `npm ci` install. Copy `.env.example` into Vercel's environment-variable settings, using `VITE_API_URL` for the backend origin, and redeploy after changing any `VITE_` value. See `VERCEL-DEPLOYMENT.md` for the complete checklist and troubleshooting guide.
+
 ## Architecture
 
 ```
@@ -64,6 +68,8 @@ English keeps Young Serif and Readex Pro. Arabic uses Thmanyah when the files ar
 ## Feedback and admin
 
 `services/feedback` is a driver interface like collaboration (`submit`, `update`, `remove`, `listMine`, `listAll`). Users send feedback from the sidebar, footer or Settings; the context attached is only the page, language, theme and browser type. `/app/admin` shows an inbox (status, notes, CSV export) and aggregate sign-up insights. Admin rights are a client hint here (`VITE_ADMIN_EMAILS`, or the preview-only switch); the API must enforce them.
+
+The separate `/admin/articles` section includes an accessible newsletter editor with JPEG, PNG, and WebP upload, client-side resizing, image alternative text, a live public-card preview, publishing, viewing, and audited removal. Admins can create categories, choose a ProofCraft icon and colour for each, and use them immediately; the public newsletter builds its category filters from published content. The frontend imposes no article-count limit. The preview stores optimised image data in this browser, so its practical capacity is limited by browser quota. Production must upload the original or processed file to private object storage through an authenticated content API, run server-side type and size validation, return a CDN URL, paginate article queries, and persist article and category metadata separately. Never accept a browser-provided MIME type or data URL as trusted content.
 
 ## Legal pages
 

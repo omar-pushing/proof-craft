@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import Button from '@/components/ui/Button.jsx';
 import ProofIcon from '@/components/system/ProofIcon.jsx';
 import SectionHeading from '@/components/system/SectionHeading.jsx';
+import { POSTS } from '@/features/blog/posts.js';
+import { useNewsletterArticles } from '@/services/articles/localStore.js';
+import ArticleCard from '@/features/blog/ArticleCard.jsx';
 import { Mocks } from './Mocks.jsx';
 import { useReveal } from './useReveal.js';
 import { useT } from '@/i18n/index.js';
@@ -14,16 +17,18 @@ const TOOLS = [
   { id: 'career', icon: 'career', label: 'Career', title: 'Keep the detail that makes your work credible', body: 'Record your contribution while the project is fresh, then reuse it in a CV and interview answer without inventing a story later.', note: 'Your own evidence, ready when you need it', to: '/app/career/evidence', cta: 'Save evidence', tone: 'blue' },
 ];
 
+const PINNED_TOOLKIT_QUERY = '(min-width: 980px) and (min-height: 680px)';
+
 function Toolkit() {
   const { t } = useT(); const [active, setActive] = useState('plan'); const tabs = useRef([]); const story = useRef(null); const shownIndex = useRef(0); const targetIndex = useRef(0); const stepTimer = useRef(0); const manualUntil = useRef(0); const tool = TOOLS.find((item) => item.id === active); const activeIndex = TOOLS.findIndex((item) => item.id === active); const Preview = Mocks[active];
   const selectTool = (index, moveStory = false) => {
     const next = Math.max(0, Math.min(TOOLS.length - 1, index)); clearTimeout(stepTimer.current); stepTimer.current = 0; shownIndex.current = next; targetIndex.current = next; manualUntil.current = Date.now() + 1100; setActive(TOOLS[next].id);
-    if (!moveStory || !story.current || !matchMedia('(min-width: 760px)').matches) return;
+    if (!moveStory || !story.current || !matchMedia(PINNED_TOOLKIT_QUERY).matches) return;
     const start = scrollY + story.current.getBoundingClientRect().top; const distance = Math.max(0, story.current.offsetHeight - innerHeight); const progress = (next + .35) / TOOLS.length;
     scrollTo({ top: start + distance * progress, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   };
   useEffect(() => {
-    const node = story.current; if (!node) return undefined; const desktop = matchMedia('(min-width: 760px)'); let frame = 0;
+    const node = story.current; if (!node) return undefined; const desktop = matchMedia(PINNED_TOOLKIT_QUERY); let frame = 0;
     const advance = () => { stepTimer.current = 0; const target = targetIndex.current; if (shownIndex.current === target) return; shownIndex.current += Math.sign(target - shownIndex.current); setActive(TOOLS[shownIndex.current].id); if (shownIndex.current !== target) stepTimer.current = setTimeout(advance, 460); };
     const update = () => { frame = 0; if (!desktop.matches) { node.style.setProperty('--story-progress', '0'); return; } const rect = node.getBoundingClientRect(); const distance = Math.max(1, node.offsetHeight - innerHeight); const progress = Math.max(0, Math.min(1, -rect.top / distance)); const index = Math.min(TOOLS.length - 1, Math.floor(progress * TOOLS.length)); node.style.setProperty('--story-progress', String(progress)); if (Date.now() < manualUntil.current) return; targetIndex.current = index; if (shownIndex.current !== index && !stepTimer.current) advance(); };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); }; update(); addEventListener('scroll', schedule, { passive: true }); addEventListener('resize', schedule); desktop.addEventListener('change', schedule);
@@ -47,8 +52,15 @@ function Connections() { const { t } = useT(); return <section className="lp-sec
   <div className="connection-band"><div><ProofIcon name="drive" /><span><b>{t('Google Drive')}</b><small>{t('Store exported CVs, plans and evidence files in a folder you choose.')}</small></span></div><i aria-hidden="true" /><div><ProofIcon name="workspace" tone="yellow" /><span><b>{t('ProofCraft workspace')}</b><small>{t('Keep the structured work that powers your day and progress view.')}</small></span></div><i aria-hidden="true" /><div><ProofIcon name="calendar" tone="green" /><span><b>{t('Google Calendar')}</b><small>{t('Add confirmed exams and study sessions with reminders you control.')}</small></span></div></div>
   <p className="connection-note">{t('Connections are optional and require your permission. ProofCraft never asks for your Google password.')}</p></div></section>; }
 
+function NewsletterPreview() {
+  const { t } = useT(); const custom = useNewsletterArticles(); const posts = [...custom.filter((post) => post.published), ...POSTS].slice(0, 3);
+  return <section className="lp-reading"><div className="container"><div className="reading-head"><SectionHeading icon="study" eyebrow={t('From the newsletter')} title={t('Practical guides for college students')} body={t('One idea per article. Read them without an account.')} /><Button to="/newsletter" variant="secondary">{t('Read all articles')}</Button></div>
+    <div className="article-grid">{posts.map((article) => <ArticleCard key={article.slug} article={article} />)}</div>
+  </div></section>;
+}
+
 export default function Landing() {
   const { t } = useT(); useReveal(); const jump = () => document.getElementById('toolkit')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   return <div className="landing-v2"><section className="lp-hero"><div className="hero-grid" aria-hidden="true" /><div className="hero-orbit orbit-a" aria-hidden="true"><ProofIcon name="plan" /></div><div className="hero-orbit orbit-b" aria-hidden="true"><ProofIcon name="study" tone="yellow" size="sm" /></div><div className="hero-orbit orbit-c" aria-hidden="true"><ProofIcon name="career" tone="green" /></div><div className="container lp-hero-inner"><div className="lp-hero-copy"><h1>{t('Plan your studies. Build proof of your skills.')}</h1><p>{t('ProofCraft keeps deadlines, study plans, group projects and career evidence in one workspace, so the work you finish today stays useful for what comes next.')}</p><div className="hero-cta"><Button to="/sign-in">{t('Create free account')}</Button><Button variant="secondary" onClick={jump}>{t('Explore the toolkit')}</Button></div></div></div></section><Toolkit /><WorkThread /><Connections />
-    <section className="lp-final"><div className="container"><ProofIcon name="plan" tone="yellow" size="lg" /><h2>{t('Start with one real task')}</h2><p>{t('Add a deadline, build a study plan, or save a piece of evidence. You can add the rest when you need it.')}</p><Button to="/sign-in">{t('Start your workspace')}</Button></div></section></div>;
+    <NewsletterPreview /><section className="lp-final"><div className="container"><ProofIcon name="plan" tone="yellow" size="lg" /><div><h2>{t('Start with one real task')}</h2><p>{t('Add a deadline, build a study plan, or save a piece of evidence. You can add the rest when you need it.')}</p></div><Button to="/sign-in">{t('Start your workspace')}</Button></div></section></div>;
 }
